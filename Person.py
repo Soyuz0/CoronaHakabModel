@@ -46,5 +46,9 @@ class Person:
         elif self.social_state == 3:
             return "no work/school"
         elif self.social_state == 4:
-            return ""
+            return "isolation"
+        elif self.social_state == 5:
+            return "hospitalization"
+        elif self.social_state == 6:
+            return "dead"
 
