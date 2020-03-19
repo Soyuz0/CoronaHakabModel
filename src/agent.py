@@ -21,7 +21,7 @@ class Agent(Entity, ABC):
         initial_location.add(self)
 
         ## Agent Constant Values ##
-        self.agent_id = agent_id;
+        self.agent_id = agent_id
 
         ## Agent Updating Values ##
         self.health = HealthMachine[0]

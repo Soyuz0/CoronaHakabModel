@@ -9,7 +9,7 @@ class SmurfHome(Location):
 
 class Smurf(Agent):
     def __init__(self, home: SmurfHome):
-        super().__init__(home)
+        super().__init__(home, id(self))
         self.home = home
 
     def next_location(self, manager) -> Optional[Location]:
