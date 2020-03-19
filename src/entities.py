@@ -4,6 +4,9 @@ from typing import Optional, MutableSet
 
 
 class Entity:
+    """
+    An entity is an abstract object that has no agency but can still be nested in other entities.
+    """
     __slots__ = 'circles',
 
     def __init__(self):
@@ -17,6 +20,9 @@ class Entity:
 
 
 class Circle(Entity):
+    """
+    A circle is an entity that can contains other entities.
+    """
     __slots__ = 'entities'
 
     def __init__(self):
@@ -24,6 +30,9 @@ class Circle(Entity):
         self.entities: MutableSet[Entity] = set()
 
     def add(self, ent: Entity):
+        """
+        Add an entity to the circle
+        """
         if ent.circles is None:
             ent.circles = {self}
         else:
@@ -31,4 +40,7 @@ class Circle(Entity):
         self.entities.add(ent)
 
     def remove(self, ent: Entity):
+        """
+        Remove an entity from the circle
+        """
         self.entities.remove(ent)

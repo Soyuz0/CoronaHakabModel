@@ -1,9 +1,16 @@
+from __future__ import annotations
+
 import random
 from bisect import bisect
-from typing import List, Tuple
+from typing import List, Optional
 
 
 class State:
+    """
+    a state is a possible position in a stochastic machine, it holds a collection of other states it might lead to
+     (with some probability)
+    """
+
     # no slots here, we want each state to be customizable
     def __init__(self, name: str, index: int):
         self.name = name
@@ -18,7 +25,10 @@ class State:
         self.transition_probs.append(next_total)
         self.transition_dests.append(dest)
 
-    def next(self):
+    def next(self) -> Optional[State]:
+        """
+        randomly get a next state, originating from this state, or None if the state does not change
+        """
         r = random.uniform(0, 1)  # todo better rand
         dest_index = bisect(self.transition_probs, r)
         if dest_index == len(self.transition_probs):
@@ -27,7 +37,11 @@ class State:
 
 
 class StochasticStateMachine:
-    # todo slots
+    """
+    A state machine that has some chance of transitioning between states
+    """
+
+    __slots__ = "_state_dict", "_state_list"
 
     def __init__(self):
         # the first state introduced is always the initial
