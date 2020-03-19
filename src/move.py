@@ -1,18 +1,20 @@
+from abc import ABC, abstractmethod
+
 
 class MoveManager:
     """
     Manages the "Move" stage of the simulation.
     """
-    
-    def __init__():
+
+    def step(self):
         pass
-    
-class MovePolicy:
+
+
+class MovePolicy(ABC):
     """
     Holds relevant information about policys that effect movement generaly.
     """
-    
-    def __init__():
+
+    @abstractmethod
+    def get_next_location(self):
         pass
-    
-    
