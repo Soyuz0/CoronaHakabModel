@@ -1,14 +1,44 @@
+from enum import IntEnum
+from typing import Union
+
 import numpy as np
 import matplotlib as plt
 
 
+class AgeCategory(IntEnum):
+    Kid = 0
+    Teen = 1
+    Adult = 2
+    Old = 3
+
+
+class MedicalState(IntEnum):
+    Immune = -1
+    Healthy = 0
+    Infected = 1
+    Asymptomatic = 2
+    SymptomaticLow = 3
+    SymptomaticMedium = 4
+    SymptomaticHigh = 5
+    Deceased = 6
+
+
+class SocialState(IntEnum):
+    Normal = 0
+    NoCrowd = 1
+    NoRoutine = 2
+    Other = 3
+
+
 class Person:
-    def __init__(self, med_state=1, social_state=1, age=1, checked=False, ssn=1):
-        self.age = age
-        self.med_state = med_state
-        self.social_state = social_state
+    def __init__(self, med_state: Union[int, MedicalState] = 0, social_state: Union[int, SocialState] = 0,
+                 age: Union[int, AgeCategory] = 0, checked=False, ssn=1):
+        self.age = AgeCategory(age)
+        self.med_state = MedicalState(med_state)
+        self.social_state = SocialState(social_state)
         self.checked = checked
         self.ssn = ssn
+<<<<<<< HEAD
 
     def get_age(self):
         if self.age == 1:
@@ -52,3 +82,5 @@ class Person:
         elif self.social_state == 6:
             return "dead"
 
+=======
+>>>>>>> a8e0d6f5f22c10efaeb33803614c99fec2426ad1
