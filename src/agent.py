@@ -1,12 +1,17 @@
 from abc import ABC, abstractmethod
+from typing import Optional
 
 from src.entities import Entity, Circle
-from src.states import HealthMachine, State
+from src.states import HealthMachine
 
 Location = Circle
 
 
 class Agent(Entity, ABC):
+    """
+    Aan agent is an entity that can move between locations
+    its location is a specific circle that represents a physical location
+    """
     __slots__ = "initial_location", "health"
 
     def __init__(self, initial_location: Location):
@@ -18,15 +23,24 @@ class Agent(Entity, ABC):
         self.health = HealthMachine[0]
 
     @abstractmethod
-    def next_location(self, manager) -> Location:
+    def next_location(self, manager) -> Optional[Location]:
+        """
+        Get the location the agent will move to within the next time step, or None if no movement will occur
+        """
         pass
 
     def move_to(self, destination: Location):
+        """
+        Change an agent's location
+        """
         self.location.remove(self)
         self.location = destination
         destination.add(self)
 
     def change_health(self, new_state):
+        """
+        Change the agent's health state
+        """
         for c in self.circles:
             if isinstance(c, InfectiousCircle):  # todo slow?
                 c.health_changed(self, new_state)
@@ -38,6 +52,9 @@ class Agent(Entity, ABC):
 
 
 class InfectiousCircle(Circle):
+    """
+    An infectious circle is a circle of agents in which agents might infect one another
+    """
     def __init__(self):
         super().__init__()
         self.infectious_count = 0
@@ -62,7 +79,10 @@ class InfectiousCircle(Circle):
             self.infectious_count -= 1
 
     def infected_ratio(self):
+        """
+        :return: the ratio of infected agents
+        """
         return self.infectious_count / len(self.entities)
 
-    def time_passed(self):
+    def time_passed(self, manager):
         pass  # todo infection logic
