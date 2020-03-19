@@ -14,13 +14,18 @@ class Agent(Entity, ABC):
     """
     __slots__ = "initial_location", "health"
 
-    def __init__(self, initial_location: Location):
+    def __init__(self, initial_location: Location, agent_id):
         super().__init__()
 
         self.location = initial_location
         initial_location.add(self)
 
+        ## Agent Constant Values ##
+        self.agent_id = agent_id
+
+        ## Agent Updating Values ##
         self.health = HealthMachine[0]
+        self.infection_rate = 0 # The amount in which the agent is infectious.
 
     @abstractmethod
     def next_location(self, manager) -> Optional[Location]:
@@ -55,8 +60,13 @@ class Location(Circle):
     """
     An infectious circle is a circle of agents in which agents might infect one another
     """
-    def __init__(self):
+    def __init__(self, area):
         super().__init__()
+        
+        ## Circle Constant Values ##
+        self.area = area # a measure of how big this circle is. Used to calculate density.
+
+        ## Circle Updating Values ##
         self.infectious_count = 0
 
     def health_changed(self, agent, new_state):
@@ -86,3 +96,8 @@ class Location(Circle):
 
     def time_passed(self, manager):
         pass  # todo infection logic
+        
+    def get_density(self):
+        if self.area == 0:
+            raise Exception("Circe is with area of 0")
+        return self.infectious_count / self.area
