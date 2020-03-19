@@ -1,10 +1,10 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from typing import Optional
 
 from src.entities import Entity, Circle
 from src.states import HealthMachine
-
-Location = Circle
 
 
 class Agent(Entity, ABC):
@@ -42,7 +42,7 @@ class Agent(Entity, ABC):
         Change the agent's health state
         """
         for c in self.circles:
-            if isinstance(c, InfectiousCircle):  # todo slow?
+            if isinstance(c, Location):  # todo slow?
                 c.health_changed(self, new_state)
         self.health = new_state
 
@@ -51,7 +51,7 @@ class Agent(Entity, ABC):
             self.change_health(n_health)
 
 
-class InfectiousCircle(Circle):
+class Location(Circle):
     """
     An infectious circle is a circle of agents in which agents might infect one another
     """
