@@ -1,6 +1,6 @@
 import numpy as np
 from scipy.sparse import lil_matrix
-from src.agent import Agent, Circle
+from agent import Agent, Circle
 import random as rnd
 
 

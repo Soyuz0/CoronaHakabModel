@@ -17,7 +17,7 @@ class SimulationManager:
 
     def __init__(self):
         self.matrix = AffinityMAtrix(self.SIZE_OF_POPULATION)
-        self.agents = [Agent(i) for i in xrange(self.SIZE_OF_POPULATION)]
+        self.agents = self.matrix.agents
         self.logger = logging.getLogger('simulation')
         self.logger.setLevel(logging.INFO)
         self.stats_plotter = plotting.StatisticsPlotter()
