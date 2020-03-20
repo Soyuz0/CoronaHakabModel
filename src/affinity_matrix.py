@@ -14,7 +14,7 @@ class AffinityMAtrix:
 
     def __init__(self, size):
         self.size = size  # population size
-        self.matrix = lil_matrix((size, size))
+        self.matrix = lil_matrix((size, size), dtype=np.float16)
 
         self.m_families = self._create_intra_family_connections()
         self.m_work = self._create_intra_workplace_connections()
@@ -71,6 +71,16 @@ class AffinityMAtrix:
         d = r0 / b
         average_edge_weight_in_matrix = self.matrix.sum() / b
         self.matrix = self.matrix * d / average_edge_weight_in_matrix  # now each entry in W is such that bd=R0
+
+    def dot(self, v):
+        """
+        performs dot operation between this matrix and v
+        :param v: with the size of self.size
+
+        :return: matrix*v
+        """
+
+        return self.matrix.dot(v)
 
     def zero_column(col_id):
         """

@@ -1,7 +1,9 @@
 from  affinity_matrix import AffinityMAtrix
 import logging
 from agent import Agent
+import numpy as np
 import plotting
+
 
 class SimulationManager:
     """
@@ -23,20 +25,36 @@ class SimulationManager:
 
         self.logger.info("Created new simulation.")
 
-    def step(self):
+    def _update_matrix(self):
         """
-        run one step
+        update matrix using current policies
+        """
+        pass
 
-        pseudo:
-        update matrix with current policy
-        v = [i for i in self.agents.is_sick]
+    def _perform_infection(self):
+        """
+        perform the infection stage by multiply matrix with infected vector and try to infect agents.
+
+        v = [i for i in self.agents.is_infectious]
         perform w*v
         for each person in v:
             if rand() < v[i]
                 agents[i].infect
-
         """
-        pass
+
+        v = np.array([agent.is_infectious() for agent in self.agents])
+        u = self.matrix.dot(v)
+        for key, value in enumerate(u):
+            self.agents[key].infect(value)
+
+    def step(self):
+        """
+        run one step
+        """
+
+        self._update_matrix()
+        self._perform_infection()
+
 
     def run(self):
         """

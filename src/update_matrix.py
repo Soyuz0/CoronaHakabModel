@@ -15,7 +15,7 @@ class UpdateMatrixManager:
         # self.apply_self_quarantine(matrix, family_matrix, sick_agents_vector, agents_list)
         
         return
-        
+
     def apply_self_quarantine(self, matrix, family_matrix, sick_agents_vector, agents_list):
         """
         Modifies the matrix so self quarantines are in place
