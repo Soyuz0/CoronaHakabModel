@@ -18,8 +18,4 @@ class MedicalState(IntEnum):
     Immune = -1
     Healthy = 0
     Infected = 1
-    Asymptomatic = 2
-    SymptomaticLow = 3
-    SymptomaticMedium = 4
-    SymptomaticHigh = 5
     Deceased = 6
