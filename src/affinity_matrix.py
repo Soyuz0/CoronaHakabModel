@@ -71,3 +71,15 @@ class AffinityMAtrix:
         d = r0 / b
         average_edge_weight_in_matrix = self.matrix.sum() / b
         self.matrix = self.matrix * d / average_edge_weight_in_matrix  # now each entry in W is such that bd=R0
+
+    def zero_column(col_id):
+        """
+        Turn the chosen column to zeroes.
+        """
+        pass
+    
+    def add_to_column(col_id, col):
+        """
+        Add the given column to the chosen column
+        """
+        pass
