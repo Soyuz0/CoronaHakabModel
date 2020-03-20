@@ -18,4 +18,4 @@ class MedicalState(IntEnum):
     Immune = -1
     Healthy = 0
     Infected = 1
-    Deceased = 6
+    Deceased = 2
