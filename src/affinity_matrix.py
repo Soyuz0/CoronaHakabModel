@@ -73,3 +73,15 @@ class AffinityMAtrix:
         """
 
         pass
+    
+    def zero_column(col_id):
+        """
+        Turn the chosen column to zeroes.
+        """
+        pass
+    
+    def add_to_column(col_id, col):
+        """
+        Add the given column to the chosen column
+        """
+        pass

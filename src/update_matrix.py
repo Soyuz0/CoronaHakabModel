@@ -28,7 +28,7 @@ class UpdateMatrixManager:
                 # remove all existing relations
                 matrix.zero_column(agent_id)
                 # insert only family relations (as he is at home)
-                matrix.add_to_column(family_matrix.get_column(agent_id))
+                matrix.add_to_column(agent_id, family_matrix.get_column(agent_id))
                 
                 
     
