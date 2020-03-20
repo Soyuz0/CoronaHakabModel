@@ -2,6 +2,7 @@ from  affinity_matrix import AffinityMAtrix
 import logging
 from agent import Agent
 
+
 class SimulationManager:
     """
     A simulation manager is the main class, it manages the steps performed with policies
@@ -51,5 +52,4 @@ class SimulationManager:
 if __name__ == '__main__':
     sm = SimulationManager()
     sm.run()
-
 
