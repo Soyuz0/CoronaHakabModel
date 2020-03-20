@@ -1,52 +1,39 @@
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
-from typing import Optional
 
-class Agent(ABC):
-    """
-    Aan agent is an entity that can move between locations
-    its location is a specific circle that represents a physical location
-    """
-    __slots__ = "initial_location", "health"
+class Agent():
+    __slots__ = "ID", "health_status", "home", "work"
 
-    def __init__(self, initial_location: Location, agent_id):
-        super().__init__()
+    def __init__(self, id, health="default"):  # todo add health status
+        self.ID = id
+        self.home = None
+        self.work = None
+        self.health_status = health
 
-        self.location = initial_location
-        initial_location.add(self)
+    def add_home(self, home):
+        self.home = home
 
-        ## Agent Constant Values ##
-        self.agent_id = agent_id
+    def add_work(self, work):
+        self.work = work
 
-        ## Agent Updating Values ##
-        self.health = HealthMachine[0]
-        self.infection_rate = 0 # The amount in which the agent is infectious.
+    def change_health_status(self, new_status):
+        self.health_status = new_status
 
-    @abstractmethod
-    def next_location(self, manager) -> Optional[Location]:
-        """
-        Get the location the agent will move to within the next time step, or None if no movement will occur
-        """
-        pass
+    def __cmp__(self, other):
+        return self.ID == other.ID
 
-    def move_to(self, destination: Location):
-        """
-        Change an agent's location
-        """
-        self.location.remove(self)
-        self.location = destination
-        destination.add(self)
 
-    def change_health(self, new_state):
-        """
-        Change the agent's health state
-        """
-        for c in self.circles:
-            if isinstance(c, Location):  # todo slow?
-                c.health_changed(self, new_state)
-        self.health = new_state
+class Circle:
+    __slots__ = "type", "agents"
 
-    def time_passed(self, manager):
-        if n_health := self.health.next():
-            self.change_health(n_health)
+    def __init__(self, type):
+        self.type = type
+        self.agents = []
+
+    def add_agent(self, agent):
+        self.agents.append(agent)
+
+    def get_indexes_of_my_circle(self, my_index):
+        rest_of_circle = set(map(lambda o: o.ID, self.agents))
+        rest_of_circle.remove(my_index)
+        return rest_of_circle
