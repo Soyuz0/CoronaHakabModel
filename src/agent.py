@@ -5,7 +5,7 @@ class Agent:
     """
     This class represents a person in our doomed world.
     """
-    __slots__ = "ID", "health_status", "home", "work"
+    __slots__ = "ssn", "ID", "health_status", "home", "work"
     def __init__(self, ssn):
         self.ssn = ssn
         self.ID = ssn

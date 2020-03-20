@@ -1,21 +1,18 @@
-from matplotlib.pyplot import plot
+from matplotlib import pyplot as plt
+
 
 class StatisticsPlotter:
     """
     Plots statistics about the simulation.
     """
-    
-    def __init__(self):
-        pass
-    
+
     def plot_infected_per_generation(self, infected_per_generation_vector):
-        plot(infected_per_generation_vector)
-    
+        plt.plot(infected_per_generation_vector)
+        plt.show()
+
+
 class StatePlotter:
     """
     Plots a current state of the simulation.
     """
-    
-    def __init__():
-        pass
-    
+    pass

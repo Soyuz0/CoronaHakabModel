@@ -35,11 +35,9 @@ class AffinityMAtrix:
         self.normalize()
 
     def generate_agents(self):
-        agents = []
+        agents = [Agent(id) for id in xrange(1000)]
 
-        for id in range(self.size):
-            new_agent = Agent(id)  # todo add health
-            agents.append(new_agent)
+        agents[0].infect(1) # this is only for check, infect 1 person
 
         return agents
 
