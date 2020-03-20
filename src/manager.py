@@ -18,6 +18,7 @@ class SimulationManager:
     def __init__(self):
         self.matrix = AffinityMAtrix(self.SIZE_OF_POPULATION)
         self.agents = self.matrix.agents
+        logging.basicConfig()
         self.logger = logging.getLogger('simulation')
         self.logger.setLevel(logging.INFO)
         self.stats_plotter = plotting.StatisticsPlotter()
@@ -54,7 +55,6 @@ class SimulationManager:
         u = self.matrix.dot(v)
         for key, value in enumerate(u):
             self.agents[key].infect(value)
-        
 
     def step(self):
         """
@@ -65,7 +65,6 @@ class SimulationManager:
         self._perform_infection()
         
         self.step_counter += 1
-
 
     def run(self):
         """
