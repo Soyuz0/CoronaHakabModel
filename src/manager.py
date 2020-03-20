@@ -71,9 +71,9 @@ class SimulationManager:
         runs full simulation
         """
 
-        for i in xrange(self.STEPS_TO_RUN):
-            self.logger.info("performing step {}/{}".format(i, self.STEPS_TO_RUN))
+        for i in range(self.STEPS_TO_RUN):
             self.step()
+            self.logger.info("performing step {}/{} : {} people are infected".format(i, self.STEPS_TO_RUN, self.infected_per_generation[i]))
             
         # plot results
         self.stats_plotter.plot_infected_per_generation(self.infected_per_generation)
@@ -82,3 +82,5 @@ class SimulationManager:
         return "<SimulationManager: SIZE_OF_POPULATION={}, STEPS_TO_RUN={}>".format(self.SIZE_OF_POPULATION,
                                                                                     self.STEPS_TO_RUN)
 
+simulation_manager = SimulationManager()
+simulation_manager.run()

@@ -30,7 +30,7 @@ class AffinityMAtrix:
         self.m_work = self._create_intra_workplace_connections()
         self.m_random = self._create_random_connectivity()
 
-        self.matrix += self.m_families + self.m_work + self.m_random
+        self.matrix = self.m_families + self.m_work + self.m_random
 
         self.normalize()
 
@@ -54,7 +54,7 @@ class AffinityMAtrix:
         taking measures to separate from each other, then this value p can be replaced by something even larger.
         """
         # as a beggining, i am making all families the same size, later we will change it to be more sophisticated
-        matrix = lil_matrix((self.size, self.size))
+        matrix = lil_matrix((self.size, self.size), dtype=np.float16)
 
         # creating all families, and assigning each agent to a family, and counterwise
         agents_withouth_home = list(range(self.size))
@@ -99,7 +99,7 @@ class AffinityMAtrix:
 
         :return: lil_matrix n*n
         """
-        matrix = lil_matrix((self.size, self.size))
+        matrix = lil_matrix((self.size, self.size), dtype=np.float16)
 
         # creating all families, and assigning each agent to a family, and counterwise
         agents_withouth_work = list(range(self.size))
@@ -140,7 +140,7 @@ class AffinityMAtrix:
         b or beta in the literature) by adding this random edges
         :return: lil_matrix n*n
         """
-        matrix = lil_matrix((self.size, self.size))
+        matrix = lil_matrix((self.size, self.size), dtype=np.float16)
         for agent in self.agents:
             amount_of_connections = 10  # right now there will be 10 random connections for each agent
             strangers_id = set()
@@ -159,7 +159,7 @@ class AffinityMAtrix:
         non_zero_elements = sum(np.count_nonzero(v) for v in self.matrix.data)
         b = non_zero_elements / self.size  # average number of connections per person per day
         d = r0 / b
-        average_edge_weight_in_matrix = self.matrix.sum() / b
+        average_edge_weight_in_matrix = self.matrix.sum() / non_zero_elements
         self.matrix = self.matrix * d / average_edge_weight_in_matrix  # now each entry in W is such that bd=R0
 
     def dot(self, v):
