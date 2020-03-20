@@ -3,6 +3,7 @@ import logging
 from agent import Agent
 import numpy as np
 import plotting
+import update_mattrix
 
 
 class SimulationManager:
@@ -20,7 +21,9 @@ class SimulationManager:
         self.logger = logging.getLogger('simulation')
         self.logger.setLevel(logging.INFO)
         self.stats_plotter = plotting.StatisticsPlotter()
+        self.update_matrix_manager = update_mattrix.UpdUpdateMatrixManager()
         
+        self.step_counter = 0
         self.infected_per_generation = [0] * SIZE_OF_POPULATION
 
         self.logger.info("Created new simulation.")
@@ -29,7 +32,7 @@ class SimulationManager:
         """
         update matrix using current policies
         """
-        pass
+        # self.update_matrix_manager.update_matrix_step()
 
     def _perform_infection(self):
         """
@@ -43,9 +46,15 @@ class SimulationManager:
         """
 
         v = np.array([agent.is_infectious() for agent in self.agents])
+        
+        # Update number of infected (for previous step, to save time)
+        num_of_infected = sum(v)
+        self.infected_per_generation[self.step_counter] = num_of_infected
+        
         u = self.matrix.dot(v)
         for key, value in enumerate(u):
             self.agents[key].infect(value)
+        
 
     def step(self):
         """
@@ -54,6 +63,8 @@ class SimulationManager:
 
         self._update_matrix()
         self._perform_infection()
+        
+        self.step_counter += 1
 
 
     def run(self):
