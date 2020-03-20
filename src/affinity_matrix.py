@@ -1,3 +1,4 @@
+import numpy as np
 from scipy.sparse import lil_matrix
 
 
@@ -63,13 +64,10 @@ class AffinityMAtrix:
     def normalize(self, r0=1.5):
         """
         this funciton should normalize the weights within W to represent the infection rate.
-         As r0=bd, where b is number of daily
-
-        pseudo:
-        b = numberOfNoneZeroElemntsInW / self.N  # average number of connections per person per day
-        d = R0 / b  # average infection probability of each contact
-        averageEdgeWeighInW = sumOfValuesInW / numberOfNoneZeroElemntsInW
-        self.matrix = self.matrix * d / averageEdgeWeighInW  # now each entry in W is such that bd=R0
+        As r0=bd, where b is number of daily infections per person
         """
-
-        pass
+        non_zero_elements = sum(np.count_nonzero(v) for v in self.matrix.data)
+        b = non_zero_elements / self.size  # average number of connections per person per day
+        d = r0 / b
+        average_edge_weight_in_matrix = self.matrix.sum() / b
+        self.matrix = self.matrix * d / average_edge_weight_in_matrix  # now each entry in W is such that bd=R0
