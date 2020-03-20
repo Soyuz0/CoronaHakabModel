@@ -1,8 +1,5 @@
-import numpy as np
 from scipy.sparse import lil_matrix
 
-DAYS_TO_RUN = 30
-POPULATION_SIZE = 1000
 
 class AffinityMAtrix:
     """
@@ -18,15 +15,15 @@ class AffinityMAtrix:
         self.size = size  # population size
         self.matrix = lil_matrix((size, size))
 
-        self.m_families = self._createIntraFamilyConnections()
-        self.m_work = self._createIntraWorkPlaceConnections()
-        self.m_random = self._createRandomConnectivity()
+        self.m_families = self._create_intra_family_connections()
+        self.m_work = self._create_intra_workplace_connections()
+        self.m_random = self._create_random_connectivity()
 
         self.matrix += self.m_families + self.m_work + self.m_random
 
         self.normalize()
 
-    def _createIntraFamilyConnections(self):
+    def _create_intra_family_connections(self):
         """
         here need to build random buckets of size N/self.averageFamilySize
         and add nodes to a NxN sparce amtrix W_famillies describing the connections within each family.
@@ -41,7 +38,7 @@ class AffinityMAtrix:
 
         return lil_matrix((self.size, self.size))
 
-    def _createIntraWorkPlaceConnections(self):
+    def _create_intra_workplace_connections(self):
         """
         Similar to build the family connections we here build the working place connections
         divide the population which goes to work (say 0.4N) into buckets of size that correspond
@@ -54,15 +51,14 @@ class AffinityMAtrix:
 
         return lil_matrix((self.size, self.size))
 
-    def _createRandomConnectivity(self):
+    def _create_random_connectivity(self):
         """
         plug here random connection, super spreaders, whatever. We can also adjust the number of daily connections
         b or beta in the literature) by adding this random edges
         :return: lil_matrix n*n
         """
-        #
-        return lil_matrix((self.size, self.size))
 
+        return lil_matrix((self.size, self.size))
 
     def normalize(self, r0=1.5):
         """
@@ -76,13 +72,4 @@ class AffinityMAtrix:
         self.matrix = self.matrix * d / averageEdgeWeighInW  # now each entry in W is such that bd=R0
         """
 
-        return self.matrix
-
-
-def main():
-    w = AffinityMAtrix(POPULATION_SIZE)
-    v = np.random.randint(2, size=POPULATION_SIZE)
-
-    for day in xrange(DAYS_TO_RUN):
-        print "day {}".format(day)
-        probVector = w * v # this is probability vector. based on that you should infect others in infectmanager.
+        pass
