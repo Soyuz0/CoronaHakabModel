@@ -25,7 +25,7 @@ class SimulationManager:
         self.update_matrix_manager = update_matrix.UpdateMatrixManager()
         
         self.step_counter = 0
-        self.infected_per_generation = [0] * self.SIZE_OF_POPULATION
+        self.infected_per_generation = [0] * self.STEPS_TO_RUN
 
         self.logger.info("Created new simulation.")
 
