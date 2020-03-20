@@ -4,7 +4,7 @@ class UpdateMatrixManager:
     Manages the "Update Matrix" stage of the simulation.
     """
     
-    def __init__():
+    def __init__(self):
         pass
     
     def update_matrix_step(self, matrix, family_matrix, sick_agents_vector, agents_list):
