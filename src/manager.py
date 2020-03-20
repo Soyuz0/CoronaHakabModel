@@ -71,7 +71,7 @@ class SimulationManager:
         runs full simulation
         """
 
-        for i in xrange(sm.STEPS_TO_RUN):
+        for i in xrange(self.STEPS_TO_RUN):
             self.logger.info("performing step {}/{}".format(i, self.STEPS_TO_RUN))
             self.step()
             
@@ -81,9 +81,4 @@ class SimulationManager:
     def __str__(self):
         return "<SimulationManager: SIZE_OF_POPULATION={}, STEPS_TO_RUN={}>".format(self.SIZE_OF_POPULATION,
                                                                                     self.STEPS_TO_RUN)
-
-
-if __name__ == '__main__':
-    sm = SimulationManager()
-    sm.run()
 
