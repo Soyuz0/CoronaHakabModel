@@ -1,4 +1,3 @@
-
 class LocationGenerator:
     """
     Generates a set of locations that will be used by the simulation.
