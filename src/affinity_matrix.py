@@ -22,7 +22,7 @@ class AffinityMAtrix:
         self.avarage_work_size = avarage_work_size
         self.work_strength = work_strength
         self.stranger_strength = stranger_strength
-        self.matrix = lil_matrix((size, size))
+        self.matrix = lil_matrix((size, size), dtype=np.float16)
 
         self.agents = self.generate_agents()
 
@@ -163,3 +163,25 @@ class AffinityMAtrix:
         d = r0 / b
         average_edge_weight_in_matrix = self.matrix.sum() / b
         self.matrix = self.matrix * d / average_edge_weight_in_matrix  # now each entry in W is such that bd=R0
+
+    def dot(self, v):
+        """
+        performs dot operation between this matrix and v
+        :param v: with the size of self.size
+
+        :return: matrix*v
+        """
+
+        return self.matrix.dot(v)
+
+    def zero_column(col_id):
+        """
+        Turn the chosen column to zeroes.
+        """
+        pass
+    
+    def add_to_column(col_id, col):
+        """
+        Add the given column to the chosen column
+        """
+        pass
