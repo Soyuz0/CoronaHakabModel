@@ -2,6 +2,7 @@ from  affinity_matrix import AffinityMAtrix
 import logging
 from agent import Agent
 import numpy as np
+import plotting
 
 
 class SimulationManager:
@@ -18,6 +19,9 @@ class SimulationManager:
         self.agents = [Agent(i) for i in xrange(self.SIZE_OF_POPULATION)]
         self.logger = logging.getLogger('simulation')
         self.logger.setLevel(logging.INFO)
+        self.stats_plotter = plotting.StatisticsPlotter()
+        
+        self.infected_per_generation = [0] * SIZE_OF_POPULATION
 
         self.logger.info("Created new simulation.")
 
@@ -60,6 +64,9 @@ class SimulationManager:
         for i in xrange(sm.STEPS_TO_RUN):
             self.logger.info("performing step {}/{}".format(i, self.STEPS_TO_RUN))
             self.step()
+            
+        # plot results
+        self.stats_plotter.plot_infected_per_generation(self.infected_per_generation)
 
     def __str__(self):
         return "<SimulationManager: SIZE_OF_POPULATION={}, STEPS_TO_RUN={}>".format(self.SIZE_OF_POPULATION,
