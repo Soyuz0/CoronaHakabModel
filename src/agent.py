@@ -1,4 +1,5 @@
-from enum import IntEnum
+import random
+from medical_state import MedicalState, INFECTABLE_MEDICAL_STATES, INFECTIONS_MEDICAL_STATES
 
 
 class Agent:
@@ -13,9 +14,23 @@ class Agent:
     def __str__(self):
         return "<Person,  ssn={}, medical={}>".format(self.ssn, self.medical_state)
 
+    def is_infectious(self):
+        """
+        Check if this agent is infectious.
 
-class MedicalState(IntEnum):
-    Immune = -1
-    Healthy = 0
-    Infected = 1
-    Deceased = 2
+        :return: bool, True if this agent can infect others.
+        """
+
+        # pay attantion, doesn't have to be only in this stage. in the future this could be multiple stages check
+        return self.medical_state in INFECTIONS_MEDICAL_STATES
+
+    def infect(self, probability=1):
+        """
+        Will try to infect this agent with given probability
+        """
+        if self.medical_state in INFECTABLE_MEDICAL_STATES:
+            if random.random() < probability:
+                self.medical_state = MedicalState.Infected
+
+
+
