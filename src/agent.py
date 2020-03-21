@@ -1,5 +1,6 @@
 import random
 from medical_state import MedicalState, INFECTABLE_MEDICAL_STATES, INFECTIONS_MEDICAL_STATES
+import numpy as np
 
 class Agent:
     """
@@ -30,6 +31,7 @@ class Agent:
         """
         Will try to infect this agent with given probability
         """
+        probability = 1 - np.exp(probability)
         if self.medical_state in INFECTABLE_MEDICAL_STATES:
             if random.random() < probability:
                 self.medical_state = MedicalState.Infected

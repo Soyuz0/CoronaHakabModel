@@ -13,7 +13,7 @@ class SimulationManager:
 
     # GENERAL SIMULATION CONSTS:
     SIZE_OF_POPULATION = 1000
-    STEPS_TO_RUN = 100
+    STEPS_TO_RUN = 20
 
     def __init__(self):
         self.matrix = AffinityMAtrix(self.SIZE_OF_POPULATION)
@@ -76,7 +76,7 @@ class SimulationManager:
             self.logger.info("performing step {}/{} : {} people are infected".format(i, self.STEPS_TO_RUN, self.infected_per_generation[i]))
             
         # plot results
-        self.stats_plotter.plot_infected_per_generation(self.infected_per_generation)
+        self.stats_plotter.plot_infected_per_generation(list(map(lambda o: np.log(o),self.infected_per_generation)))
 
     def __str__(self):
         return "<SimulationManager: SIZE_OF_POPULATION={}, STEPS_TO_RUN={}>".format(self.SIZE_OF_POPULATION,
