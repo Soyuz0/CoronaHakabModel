@@ -50,11 +50,11 @@ class Agent:
     def change_medical_state(self, new_status):
         self.medical_state = new_status
 
-    def day_passed(self, current_date):
+    def day_passed(self, roll, current_date):
         if self.infection_date is None or self.infection_date < 0:
             return False
         if current_date >= self.infection_date + corona_stats.average_infection_length:  # todo use random with a given deviation
-            if random() < corona_stats.death_ratio:
+            if roll < corona_stats.death_ratio:
                 self.change_medical_state(MedicalState.Deceased)
                 return "Dead"
             else:

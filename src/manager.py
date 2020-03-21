@@ -5,7 +5,6 @@ import yappi
 
 from affinity_matrix import AffinityMAtrix
 import logging
-from agent import Agent
 import numpy as np
 import plotting
 import update_matrix
@@ -55,8 +54,9 @@ class SimulationManager:
         after each day, go through all sick agents and updates their status (allowing them to recover or die)
         """
         to_remove = set()
-        for agent in self.sick_agents:
-            result = agent.day_passed(self.step_counter)
+        rolls = np.random.random(len(self.sick_agents))
+        for agent, roll in zip(self.sick_agents, rolls):
+            result = agent.day_passed(roll, self.step_counter)
             if result:
                 to_remove.add(agent)
                 self.sick_agent_vector[agent.ID] = False
@@ -139,8 +139,7 @@ class SimulationManager:
         # logoritmic scale:
         # self.stats_plotter.plot_infected_per_generation(list(map(lambda o: np.log(o), self.infected_per_generation)))
         # linear scale:
-        yappi.stop()
-        self.stats_plotter.plot_infected_per_generation(self.sick_per_generation)
+        #self.stats_plotter.plot_infected_per_generation(self.sick_per_generation)
         # self.stats_plotter.plot_log_with_linear_regression(self.sick_per_generation)
 
     def __str__(self):
