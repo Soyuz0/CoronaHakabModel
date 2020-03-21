@@ -156,7 +156,7 @@ class AffinityMAtrix:
         this funciton should normalize the weights within W to represent the infection rate.
         As r0=bd, where b is number of daily infections per person
         """
-        non_zero_elements = sum(np.count_nonzero(v) for v in self.matrix.data)
+        non_zero_elements = self.matrix.count_nonzero()
         b = non_zero_elements / self.size  # average number of connections per person per day
         d = r0 / b
         average_edge_weight_in_matrix = self.matrix.sum() / non_zero_elements

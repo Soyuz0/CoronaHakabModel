@@ -49,7 +49,7 @@ class SimulationManager:
         v = np.array([agent.is_infectious() for agent in self.agents])
         
         # Update number of infected (for previous step, to save time)
-        num_of_infected = sum(v)
+        num_of_infected = v.sum()
         self.infected_per_generation[self.step_counter] = num_of_infected
         
         u = self.matrix.dot(v)
