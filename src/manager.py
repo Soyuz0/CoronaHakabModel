@@ -1,48 +1,86 @@
-from __future__ import annotations
-
-from itertools import chain
-from typing import Iterable, Callable
-
-from src.agent import Agent, Location
-from src.infection import InfectionManager
-from src.move import MoveManager
+from  affinity_matrix import AffinityMAtrix
+import logging
+from agent import Agent
+import numpy as np
+import plotting
+import update_matrix
 
 
 class SimulationManager:
     """
-    A simulation manager is the main class, it holds all the locations and agents in the
-     simulation and oversees their coordination
+    A simulation manager is the main class, it manages the steps performed with policies
     """
 
-    def __init__(self, location_generator, agent_generator, move_policy, infection_policy):
-        self.locations = location_generator()
-        self.agents = agent_generator(self.locations)
+    # GENERAL SIMULATION CONSTS:
+    SIZE_OF_POPULATION = 1000
+    STEPS_TO_RUN = 100
 
-        self.move_manager = MoveManager(self, move_policy)
-        self.infection_manager = None  # todo
+    def __init__(self):
+        self.matrix = AffinityMAtrix(self.SIZE_OF_POPULATION)
+        self.agents = self.matrix.agents
+        logging.basicConfig()
+        self.logger = logging.getLogger('simulation')
+        self.logger.setLevel(logging.INFO)
+        self.stats_plotter = plotting.StatisticsPlotter()
+        self.update_matrix_manager = update_matrix.UpdateMatrixManager()
+        
+        self.step_counter = 0
+        self.infected_per_generation = [0] * self.STEPS_TO_RUN
 
-        self.sim_time: float = None  # sim_time is measured in steps performed, and not in any real-time measurement
+        self.logger.info("Created new simulation.")
 
-        self.logger: Callable[[SimulationManager], None] = lambda x: None  # todo
-        self.to_continue: Callable[[SimulationManager], bool] = lambda x: False  # todo
+    def _update_matrix(self):
+        """
+        update matrix using current policies
+        """
+        # self.update_matrix_manager.update_matrix_step()
+
+    def _perform_infection(self):
+        """
+        perform the infection stage by multiply matrix with infected vector and try to infect agents.
+
+        v = [i for i in self.agents.is_infectious]
+        perform w*v
+        for each person in v:
+            if rand() < v[i]
+                agents[i].infect
+        """
+
+        v = np.array([agent.is_infectious() for agent in self.agents])
+        
+        # Update number of infected (for previous step, to save time)
+        num_of_infected = sum(v)
+        self.infected_per_generation[self.step_counter] = num_of_infected
+        
+        u = self.matrix.dot(v)
+        for key, value in enumerate(u):
+            self.agents[key].infect(value)
 
     def step(self):
-        self.sim_time += 1
-        # move stage
-        self.move_manager.step()
+        """
+        run one step
+        """
 
-        # infection stage
-        for entity in chain(
-                self.agents,
-                self.locations
-        ):
-            entity.time_passed(self)
+        self._update_matrix()
+        self._perform_infection()
+        
+        self.step_counter += 1
 
-        self.logger(self)
+    def run(self):
+        """
+        runs full simulation
+        """
 
-    def repeat(self):
-        self.sim_time = 0
-        while self.to_continue(self):
+        for i in range(self.STEPS_TO_RUN):
             self.step()
+            self.logger.info("performing step {}/{} : {} people are infected".format(i, self.STEPS_TO_RUN, self.infected_per_generation[i]))
+            
+        # plot results
+        self.stats_plotter.plot_infected_per_generation(self.infected_per_generation)
 
-    # todo add and remove agents/locations
+    def __str__(self):
+        return "<SimulationManager: SIZE_OF_POPULATION={}, STEPS_TO_RUN={}>".format(self.SIZE_OF_POPULATION,
+                                                                                    self.STEPS_TO_RUN)
+
+simulation_manager = SimulationManager()
+simulation_manager.run()

@@ -1,52 +1,63 @@
-from __future__ import annotations
+import random
+from medical_state import MedicalState, INFECTABLE_MEDICAL_STATES, INFECTIONS_MEDICAL_STATES
 
-from abc import ABC, abstractmethod
-from typing import Optional
-
-class Agent(ABC):
+class Agent:
     """
-    Aan agent is an entity that can move between locations
-    its location is a specific circle that represents a physical location
+    This class represents a person in our doomed world.
     """
-    __slots__ = "initial_location", "health"
+    __slots__ = "ssn", "ID", "health_status", "home", "work", "medical_state"
+    def __init__(self, ssn):
+        self.ssn = ssn
+        self.ID = ssn
+        self.home = None
+        self.work = None
+        self.medical_state = MedicalState.Healthy
 
-    def __init__(self, initial_location: Location, agent_id):
-        super().__init__()
+    def __str__(self):
+        return "<Person,  ssn={}, medical={}>".format(self.ssn, self.medical_state)
 
-        self.location = initial_location
-        initial_location.add(self)
-
-        ## Agent Constant Values ##
-        self.agent_id = agent_id
-
-        ## Agent Updating Values ##
-        self.health = HealthMachine[0]
-        self.infection_rate = 0 # The amount in which the agent is infectious.
-
-    @abstractmethod
-    def next_location(self, manager) -> Optional[Location]:
+    def is_infectious(self):
         """
-        Get the location the agent will move to within the next time step, or None if no movement will occur
-        """
-        pass
+        Check if this agent is infectious.
 
-    def move_to(self, destination: Location):
+        :return: bool, True if this agent can infect others.
         """
-        Change an agent's location
-        """
-        self.location.remove(self)
-        self.location = destination
-        destination.add(self)
 
-    def change_health(self, new_state):
-        """
-        Change the agent's health state
-        """
-        for c in self.circles:
-            if isinstance(c, Location):  # todo slow?
-                c.health_changed(self, new_state)
-        self.health = new_state
+        # pay attantion, doesn't have to be only in this stage. in the future this could be multiple stages check
+        return self.medical_state in INFECTIONS_MEDICAL_STATES
 
-    def time_passed(self, manager):
-        if n_health := self.health.next():
-            self.change_health(n_health)
+    def infect(self, probability=1):
+        """
+        Will try to infect this agent with given probability
+        """
+        if self.medical_state in INFECTABLE_MEDICAL_STATES:
+            if random.random() < probability:
+                self.medical_state = MedicalState.Infected
+                
+    def add_home(self, home):
+        self.home = home
+
+    def add_work(self, work):
+        self.work = work
+
+    def change_health_status(self, new_status):
+        self.health_status = new_status
+
+    def __cmp__(self, other):
+        return self.ID == other.ID
+
+      
+class Circle:
+    __slots__ = "type", "agents"
+
+    def __init__(self, type):
+        self.type = type
+        self.agents = []
+
+    def add_agent(self, agent):
+        self.agents.append(agent)
+
+    def get_indexes_of_my_circle(self, my_index):
+        rest_of_circle = set(map(lambda o: o.ID, self.agents))
+        rest_of_circle.remove(my_index)
+        return rest_of_circle
