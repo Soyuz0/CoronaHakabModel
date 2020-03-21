@@ -2,6 +2,8 @@ import numpy as np
 from scipy.sparse import lil_matrix
 from agent import Agent, Circle
 import random as rnd
+from medical_state import MedicalState, INFECTABLE_MEDICAL_STATES, INFECTIONS_MEDICAL_STATES
+import corona_stats, social_stats
 
 
 class AffinityMAtrix:
@@ -14,14 +16,8 @@ class AffinityMAtrix:
     Naturally, W is symetric.
     """
 
-    def __init__(self, size, avarage_family_size=5, family_strength=0.4, avarage_work_size=50, work_strength=0.04,
-                 stranger_strength=0.004):
+    def __init__(self, size):
         self.size = size  # population size
-        self.avarage_family_size = avarage_family_size
-        self.family_strength = family_strength
-        self.avarage_work_size = avarage_work_size
-        self.work_strength = work_strength
-        self.stranger_strength = stranger_strength
         self.matrix = lil_matrix((size, size), dtype=np.float16)
 
         self.agents = self.generate_agents()
@@ -36,9 +32,6 @@ class AffinityMAtrix:
 
     def generate_agents(self):
         agents = [Agent(id) for id in range(self.size)]
-
-        agents[0].infect(1) # this is only for check, infect 1 person
-
         return agents
 
     def _create_intra_family_connections(self):
@@ -59,9 +52,9 @@ class AffinityMAtrix:
         # creating all families, and assigning each agent to a family, and counterwise
         agents_withouth_home = list(range(self.size))
         families = []
-        for _ in range(self.size // self.avarage_family_size):
+        for _ in range(self.size // social_stats.avarage_family_size):
             new_family = Circle("home")
-            for _ in range(self.avarage_family_size):
+            for _ in range(social_stats.avarage_family_size):
                 random_int = rnd.randint(0, len(agents_withouth_home) - 1)
                 chosen_agent = self.agents[agents_withouth_home[random_int]]
                 agents_withouth_home.remove(agents_withouth_home[random_int])
@@ -85,7 +78,7 @@ class AffinityMAtrix:
                 continue
             family_members_ids = agent.home.get_indexes_of_my_circle(agent.ID)  # right now families are circle[0]
             for id in family_members_ids:
-                matrix[agent.ID, id] = self.family_strength
+                matrix[agent.ID, id] = social_stats.family_strength
 
         return matrix
 
@@ -104,9 +97,9 @@ class AffinityMAtrix:
         # creating all families, and assigning each agent to a family, and counterwise
         agents_withouth_work = list(range(self.size))
         works = []
-        for _ in range(self.size // self.avarage_work_size):  # todo add last work
+        for _ in range(self.size // social_stats.avarage_work_size):  # todo add last work
             new_work = Circle("work")
-            for _ in range(self.avarage_work_size):
+            for _ in range(social_stats.avarage_work_size):
                 random_int = rnd.randint(0, len(agents_withouth_work) - 1)
                 chosen_agent = self.agents[agents_withouth_work[random_int]]
                 agents_withouth_work.remove(agents_withouth_work[random_int])
@@ -130,7 +123,7 @@ class AffinityMAtrix:
                 continue
             work_members_ids = agent.work.get_indexes_of_my_circle(agent.ID)  # right now works are circle[1]
             for id in work_members_ids:
-                matrix[agent.ID, id] = self.work_strength
+                matrix[agent.ID, id] = social_stats.work_strength
 
         return matrix
 
@@ -147,20 +140,28 @@ class AffinityMAtrix:
             for _ in range(amount_of_connections):
                 strangers_id.add(rnd.randint(0, self.size - 1))
             for id in strangers_id:
-                matrix[agent.ID, id] = self.stranger_strength
+                matrix[agent.ID, id] = social_stats.stranger_strength
 
         return matrix
 
-    def normalize(self, r0=1.5):
+    def normalize(self):
         """
         this funciton should normalize the weights within W to represent the infection rate.
         As r0=bd, where b is number of daily infections per person
         """
-        non_zero_elements = self.matrix.count_nonzero()
+        r0 = corona_stats.r0
+		non_zero_elements = self.matrix.count_nonzero()
         b = non_zero_elements / self.size  # average number of connections per person per day
-        d = r0 / b
-        average_edge_weight_in_matrix = self.matrix.sum() / non_zero_elements
-        self.matrix = self.matrix * d / average_edge_weight_in_matrix  # now each entry in W is such that bd=R0
+        d = r0 / corona_stats.average_infection_length / b #avarage probability for infection in each meeting as should be
+        average_edge_weight_in_matrix = self.matrix.sum() / non_zero_elements #avarage probability for infection in each meeting in current matrix
+        self.matrix = self.matrix * d / average_edge_weight_in_matrix # (alpha = d / average_edge_weight_in_matrix) now each entry in W is such that bd=R0
+
+        #switching from probability to ln(1-p):
+        for row_index in range(self.size):
+            row = self.matrix.getrow(row_index)
+            for col in row.indices:
+                self.matrix[row_index,col] = np.log(1- self.matrix[row_index,col])
+
 
     def dot(self, v):
         """

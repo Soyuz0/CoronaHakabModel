@@ -1,11 +1,13 @@
 import random
 from medical_state import MedicalState, INFECTABLE_MEDICAL_STATES, INFECTIONS_MEDICAL_STATES
+import numpy as np
+import corona_stats
 
 class Agent:
     """
     This class represents a person in our doomed world.
     """
-    __slots__ = "ssn", "ID", "health_status", "home", "work", "medical_state"
+    __slots__ = "ssn", "ID", "home", "work", "medical_state", "infection_date"
     def __init__(self, ssn):
         self.ssn = ssn
         self.ID = ssn
@@ -26,13 +28,17 @@ class Agent:
         # pay attantion, doesn't have to be only in this stage. in the future this could be multiple stages check
         return self.medical_state in INFECTIONS_MEDICAL_STATES
 
-    def infect(self, probability=1):
+    def infect(self, probability=1, date = 0):
         """
         Will try to infect this agent with given probability
         """
+        probability = 1 - np.exp(probability)
         if self.medical_state in INFECTABLE_MEDICAL_STATES:
             if random.random() < probability:
-                self.medical_state = MedicalState.Infected
+                self.change_medical_state(MedicalState.Infected)
+                self.infection_date = date
+                return True
+        return False
                 
     def add_home(self, home):
         self.home = home
@@ -40,8 +46,22 @@ class Agent:
     def add_work(self, work):
         self.work = work
 
-    def change_health_status(self, new_status):
-        self.health_status = new_status
+    def change_medical_state(self, new_status):
+        self.medical_state = new_status
+
+    def day_passed(self, current_date):
+        if self.infection_date is None or self.infection_date < 0:
+            return False
+        if current_date >= self.infection_date + corona_stats.average_infection_length: #todo use random with a given deviation
+            if random.random() < corona_stats.death_ratio:
+                self.change_medical_state(MedicalState.Deceased)
+                return "Dead"
+            else:
+                self.change_medical_state(MedicalState.Immune)
+                return "Recovered"
+            return True
+        return False
+
 
     def __cmp__(self, other):
         return self.ID == other.ID
