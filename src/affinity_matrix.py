@@ -2,6 +2,7 @@ import numpy as np
 from scipy.sparse import lil_matrix
 from agent import Agent, Circle
 import random as rnd
+from medical_state import MedicalState, INFECTABLE_MEDICAL_STATES, INFECTIONS_MEDICAL_STATES
 
 
 class AffinityMAtrix:
@@ -37,7 +38,7 @@ class AffinityMAtrix:
     def generate_agents(self):
         agents = [Agent(id) for id in range(self.size)]
 
-        agents[0].infect(1) # this is only for check, infect 1 person
+        agents[0].medical_state = MedicalState.Infected # this is only for check, infect 1 person
 
         return agents
 
@@ -160,7 +161,14 @@ class AffinityMAtrix:
         b = non_zero_elements / self.size  # average number of connections per person per day
         d = r0 / b
         average_edge_weight_in_matrix = self.matrix.sum() / non_zero_elements
-        self.matrix = self.matrix * d / average_edge_weight_in_matrix  # now each entry in W is such that bd=R0
+        self.matrix = self.matrix * d / average_edge_weight_in_matrix # now each entry in W is such that bd=R0
+
+        #switching from probability to ln(1-p):
+        for row_index in range(self.size):
+            row = self.matrix.getrow(row_index)
+            for col in row.indices:
+                self.matrix[row_index,col] = np.log(1- self.matrix[row_index,col])
+
 
     def dot(self, v):
         """
