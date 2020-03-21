@@ -1,3 +1,5 @@
+from time import time
+
 from affinity_matrix import AffinityMAtrix
 import logging
 from agent import Agent
@@ -69,7 +71,7 @@ class SimulationManager:
         v = np.array(
             [agent.is_infectious() for agent in self.agents])  # todo now that we have self.sick_agents, optimize this
 
-        u = self.matrix.dot(v)
+        u = self.matrix.matrix.dot(v)
         for key, value in enumerate(u):
             if self.agents[key].infect(value, self.step_counter):
                 self.sick_agents.append(self.agents[key])
@@ -104,6 +106,7 @@ class SimulationManager:
         runs full simulation
         """
         self.setup_sick(5)
+        start_time = time()
         for i in range(self.STEPS_TO_RUN):
             self.step()
             self.logger.info(
@@ -117,6 +120,9 @@ class SimulationManager:
                     self.dead_per_generation[
                         i], self.infected_per_generation[i]))
 
+        duration = time() - start_time
+        print(f'total run time: {duration:.2f}s')
+
         # plot results
         # logoritmic scale:
         # self.stats_plotter.plot_infected_per_generation(list(map(lambda o: np.log(o), self.infected_per_generation)))
@@ -126,7 +132,3 @@ class SimulationManager:
     def __str__(self):
         return "<SimulationManager: SIZE_OF_POPULATION={}, STEPS_TO_RUN={}>".format(self.SIZE_OF_POPULATION,
                                                                                     self.STEPS_TO_RUN)
-
-
-simulation_manager = SimulationManager()
-simulation_manager.run()

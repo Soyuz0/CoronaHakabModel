@@ -5,6 +5,8 @@ import random as rnd
 from medical_state import MedicalState, INFECTABLE_MEDICAL_STATES, INFECTIONS_MEDICAL_STATES
 import corona_stats, social_stats
 
+m_type = lil_matrix
+
 
 class AffinityMAtrix:
     """
@@ -18,7 +20,7 @@ class AffinityMAtrix:
 
     def __init__(self, size):
         self.size = size  # population size
-        self.matrix = lil_matrix((size, size), dtype=np.float16)
+        self.matrix = m_type((size, size), dtype=np.float16)
 
         self.agents = self.generate_agents()
 
@@ -47,7 +49,7 @@ class AffinityMAtrix:
         taking measures to separate from each other, then this value p can be replaced by something even larger.
         """
         # as a beggining, i am making all families the same size, later we will change it to be more sophisticated
-        matrix = lil_matrix((self.size, self.size), dtype=np.float16)
+        matrix = m_type((self.size, self.size), dtype=np.float16)
 
         # creating all families, and assigning each agent to a family, and counterwise
         agents_withouth_home = list(range(self.size))
@@ -63,7 +65,7 @@ class AffinityMAtrix:
             families.append(new_family)
         self.families = families
 
-        #adding the remaining people to a family (if size % average_family_size != 0)
+        # adding the remaining people to a family (if size % average_family_size != 0)
         if len(agents_withouth_home) > 0:
             new_family = Circle("home")
             for agent_index in agents_withouth_home:
@@ -92,7 +94,7 @@ class AffinityMAtrix:
 
         :return: lil_matrix n*n
         """
-        matrix = lil_matrix((self.size, self.size), dtype=np.float16)
+        matrix = m_type((self.size, self.size), dtype=np.float16)
 
         # creating all families, and assigning each agent to a family, and counterwise
         agents_withouth_work = list(range(self.size))
@@ -133,7 +135,7 @@ class AffinityMAtrix:
         b or beta in the literature) by adding this random edges
         :return: lil_matrix n*n
         """
-        matrix = lil_matrix((self.size, self.size), dtype=np.float16)
+        matrix = m_type((self.size, self.size), dtype=np.float16)
         for agent in self.agents:
             amount_of_connections = 10  # right now there will be 10 random connections for each agent
             strangers_id = set()
@@ -150,37 +152,40 @@ class AffinityMAtrix:
         As r0=bd, where b is number of daily infections per person
         """
         r0 = corona_stats.r0
-		non_zero_elements = self.matrix.count_nonzero()
-        b = non_zero_elements / self.size  # average number of connections per person per day
-        d = r0 / corona_stats.average_infection_length / b #avarage probability for infection in each meeting as should be
-        average_edge_weight_in_matrix = self.matrix.sum() / non_zero_elements #avarage probability for infection in each meeting in current matrix
-        self.matrix = self.matrix * d / average_edge_weight_in_matrix # (alpha = d / average_edge_weight_in_matrix) now each entry in W is such that bd=R0
+        non_zero_elements = self.matrix.count_nonzero()
 
-        #switching from probability to ln(1-p):
+        b = non_zero_elements / self.size  # average number of connections per person per day
+        d = r0 / corona_stats.average_infection_length / b  # avarage probability for infection in each meeting as should be
+        average_edge_weight_in_matrix = self.matrix.sum() / non_zero_elements  # avarage probability for infection in each meeting in current matrix
+        self.matrix = self.matrix * d / average_edge_weight_in_matrix  # (alpha = d / average_edge_weight_in_matrix) now each entry in W is such that bd=R0
+
+        # switching from probability to ln(1-p):
         for row_index in range(self.size):
             row = self.matrix.getrow(row_index)
             for col in row.indices:
-                self.matrix[row_index,col] = np.log(1- self.matrix[row_index,col])
+                self.matrix[row_index, col] = np.log(1 - self.matrix[row_index, col])
 
 
-    def dot(self, v):
-        """
-        performs dot operation between this matrix and v
-        :param v: with the size of self.size
+def dot(self, v):
+    """
+    performs dot operation between this matrix and v
+    :param v: with the size of self.size
 
-        :return: matrix*v
-        """
+    :return: matrix*v
+    """
 
-        return self.matrix.dot(v)
+    return self.matrix.dot(v)
 
-    def zero_column(col_id):
-        """
-        Turn the chosen column to zeroes.
-        """
-        pass
-    
-    def add_to_column(col_id, col):
-        """
-        Add the given column to the chosen column
-        """
-        pass
+
+def zero_column(col_id):
+    """
+    Turn the chosen column to zeroes.
+    """
+    pass
+
+
+def add_to_column(col_id, col):
+    """
+    Add the given column to the chosen column
+    """
+    pass
