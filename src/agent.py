@@ -1,18 +1,30 @@
-import random
+from functools import partial
+
 from medical_state import MedicalState, INFECTABLE_MEDICAL_STATES, INFECTIONS_MEDICAL_STATES
 import numpy as np
 import corona_stats
+
+
+def _random_buffer(buffer_size=1024):
+    while True:
+        yield from np.random.random(buffer_size)
+
+
+random = partial(next, _random_buffer())
+
 
 class Agent:
     """
     This class represents a person in our doomed world.
     """
     __slots__ = "ssn", "ID", "home", "work", "medical_state", "infection_date"
+
     def __init__(self, ssn):
         self.ssn = ssn
         self.ID = ssn
         self.home = None
         self.work = None
+        self.infection_date = None
         self.medical_state = MedicalState.Healthy
 
     def __str__(self):
@@ -28,18 +40,18 @@ class Agent:
         # pay attantion, doesn't have to be only in this stage. in the future this could be multiple stages check
         return self.medical_state in INFECTIONS_MEDICAL_STATES
 
-    def infect(self, probability=1, date = 0):
+    def infect(self, probability=1, date=0):
         """
         Will try to infect this agent with given probability
         """
         probability = 1 - np.exp(probability)
-        if self.medical_state in INFECTABLE_MEDICAL_STATES:
-            if random.random() < probability:
+        if self.is_infectious():
+            if random() < probability:
                 self.change_medical_state(MedicalState.Infected)
                 self.infection_date = date
                 return True
         return False
-                
+
     def add_home(self, home):
         self.home = home
 
@@ -52,21 +64,19 @@ class Agent:
     def day_passed(self, current_date):
         if self.infection_date is None or self.infection_date < 0:
             return False
-        if current_date >= self.infection_date + corona_stats.average_infection_length: #todo use random with a given deviation
-            if random.random() < corona_stats.death_ratio:
+        if current_date >= self.infection_date + corona_stats.average_infection_length:  # todo use random with a given deviation
+            if random() < corona_stats.death_ratio:
                 self.change_medical_state(MedicalState.Deceased)
                 return "Dead"
             else:
                 self.change_medical_state(MedicalState.Immune)
                 return "Recovered"
-            return True
         return False
-
 
     def __cmp__(self, other):
         return self.ID == other.ID
 
-      
+
 class Circle:
     __slots__ = "type", "agents"
 
@@ -78,6 +88,6 @@ class Circle:
         self.agents.append(agent)
 
     def get_indexes_of_my_circle(self, my_index):
-        rest_of_circle = set(map(lambda o: o.ID, self.agents))
+        rest_of_circle = {o.ID for o in self.agents}
         rest_of_circle.remove(my_index)
         return rest_of_circle

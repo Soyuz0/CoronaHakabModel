@@ -2,7 +2,6 @@ import numpy as np
 from scipy.sparse import lil_matrix
 from agent import Agent, Circle
 import random as rnd
-from medical_state import MedicalState, INFECTABLE_MEDICAL_STATES, INFECTIONS_MEDICAL_STATES
 import corona_stats, social_stats
 
 m_type = lil_matrix

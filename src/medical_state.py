@@ -8,6 +8,6 @@ class MedicalState(IntEnum):
     Deceased = 2
 
 
-INFECTABLE_MEDICAL_STATES = [MedicalState.Healthy]
-INFECTIONS_MEDICAL_STATES = [MedicalState.Infected]
-IMUNE_MEDICAL_STATES = [MedicalState.Immune, MedicalState.Deceased]
+INFECTABLE_MEDICAL_STATES = {MedicalState.Healthy}
+INFECTIONS_MEDICAL_STATES = {MedicalState.Infected}
+IMUNE_MEDICAL_STATES = {MedicalState.Immune, MedicalState.Deceased}
