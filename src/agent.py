@@ -1,16 +1,5 @@
-from functools import partial
-
 from medical_state import MedicalState, INFECTABLE_MEDICAL_STATES, INFECTIONS_MEDICAL_STATES
-import numpy as np
 import corona_stats
-
-
-def _random_buffer(buffer_size=1024):
-    while True:
-        yield from np.random.random(buffer_size)
-
-
-random = partial(next, _random_buffer())
 
 
 class Agent:
@@ -40,17 +29,17 @@ class Agent:
         # pay attantion, doesn't have to be only in this stage. in the future this could be multiple stages check
         return self.medical_state in INFECTIONS_MEDICAL_STATES
 
-    def infect(self, probability=1, date=0):
+    def is_infectable(self):
+        return self.medical_state in INFECTABLE_MEDICAL_STATES
+
+    def infect(self, date=0):
         """
         Will try to infect this agent with given probability
         """
-        probability = 1 - np.exp(probability)
-        if self.is_infectious():
-            if random() < probability:
-                self.change_medical_state(MedicalState.Infected)
-                self.infection_date = date
-                return True
-        return False
+        if self.is_infectable():
+            self.change_medical_state(MedicalState.Infected)
+            self.infection_date = date
+            return True
 
     def add_home(self, home):
         self.home = home

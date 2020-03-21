@@ -1,4 +1,7 @@
+from itertools import islice
 from time import time
+
+import yappi
 
 from affinity_matrix import AffinityMAtrix
 import logging
@@ -75,11 +78,11 @@ class SimulationManager:
         """
 
         v = self.sick_agent_vector
-        # todo now that we have self.sick_agents, optimize this
 
         u = self.matrix.matrix.dot(v)
-        for agent, value in zip(self.agents, u):
-            if agent.infect(value, self.step_counter):
+        infections = np.random.random(u.shape) < (1 - np.exp(u))
+        for agent, value in zip(self.agents, infections):
+            if value and agent.infect(self.step_counter):
                 self.sick_agent_vector[agent.ID] = True
                 self.sick_agents.add(agent)
 
@@ -104,9 +107,8 @@ class SimulationManager:
         """"
         setting up the simulation with a given amount of infected people
         """
-        for index in range(amount_of_infected_to_start_with):
-            agent = self.agents[index]
-            agent.infect(-100, 0)
+        for agent in islice(self.agents, amount_of_infected_to_start_with):
+            agent.infect(0)
             self.sick_agents.add(agent)
 
         self.sick_agent_vector[:amount_of_infected_to_start_with] = True
@@ -137,8 +139,9 @@ class SimulationManager:
         # logoritmic scale:
         # self.stats_plotter.plot_infected_per_generation(list(map(lambda o: np.log(o), self.infected_per_generation)))
         # linear scale:
+        yappi.stop()
         self.stats_plotter.plot_infected_per_generation(self.sick_per_generation)
-        #self.stats_plotter.plot_log_with_linear_regression(self.sick_per_generation)
+        # self.stats_plotter.plot_log_with_linear_regression(self.sick_per_generation)
 
     def __str__(self):
         return "<SimulationManager: SIZE_OF_POPULATION={}, STEPS_TO_RUN={}>".format(self.SIZE_OF_POPULATION,
