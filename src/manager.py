@@ -128,6 +128,7 @@ class SimulationManager:
         # self.stats_plotter.plot_infected_per_generation(list(map(lambda o: np.log(o), self.infected_per_generation)))
         # linear scale:
         self.stats_plotter.plot_infected_per_generation(self.sick_per_generation)
+        self.stats_plotter.plot_log_with_linear_regression(self.sick_per_generation)
 
     def __str__(self):
         return "<SimulationManager: SIZE_OF_POPULATION={}, STEPS_TO_RUN={}>".format(self.SIZE_OF_POPULATION,
