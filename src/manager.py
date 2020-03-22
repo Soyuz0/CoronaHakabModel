@@ -4,6 +4,8 @@ from agent import Agent
 import numpy as np
 import plotting
 import update_matrix
+import random as rnd
+import corona_stats, social_stats
 
 
 class SimulationManager:
@@ -98,12 +100,28 @@ class SimulationManager:
         for index in range(amount_of_infected_to_start_with):
             self.agents[index].infect(-100, 0)
             self.sick_agents.append(self.agents[index])
+            
+    def generate_policy(self, workers_percent):
+        """"
+        setting up the simulation with a given amount of infected people
+        """
+        for agent in self.agents:
+            if agent.work is None:
+                continue
+            if rnd.random() > workers_percent:
+                work_members_ids = agent.work.get_indexes_of_my_circle(agent.ID)  # right now works are circle[1]
+                for id in work_members_ids:
+                    self.matrix.matrix[agent.ID, id] = np.log(1)
+                family_members_ids = agent.home.get_indexes_of_my_circle(agent.ID)  # right now families are circle[0]
+                for id in family_members_ids:
+                    self.matrix.matrix[agent.ID, id] = np.log(1-social_stats.family_strength_not_workers)
 
     def run(self):
         """
         runs full simulation
         """
         self.setup_sick(5)
+        self.generate_policy(1)
         for i in range(self.STEPS_TO_RUN):
             self.step()
             self.logger.info(
@@ -119,7 +137,7 @@ class SimulationManager:
 
         # plot results
         # logoritmic scale:
-        # self.stats_plotter.plot_infected_per_generation(list(map(lambda o: np.log(o), self.infected_per_generation)))
+        #self.stats_plotter.plot_infected_per_generation(list(map(lambda o: np.log(o), self.infected_per_generation)))
         # linear scale:
         self.stats_plotter.plot_infected_per_generation(self.sick_per_generation)
         self.stats_plotter.plot_log_with_linear_regression(self.sick_per_generation)
