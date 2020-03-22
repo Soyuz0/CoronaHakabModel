@@ -184,6 +184,8 @@ class AffinityMatrix:
         """
         self.logger.info(f"normalizing matrix")
         r0 = corona_stats.r0
+        #changes r0 to fit the infection ratio (he is calculated despite the low infection ratio)
+        r0 = r0 * (2 / (corona_stats.ASymptomatic_infection_ratio + corona_stats.Symptomatic_infection_ratio))
         non_zero_elements = self.matrix.count_nonzero()
 
         b = non_zero_elements / self.size  # average number of connections per person per day

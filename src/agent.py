@@ -43,6 +43,13 @@ class Agent:
             self.infection_date = date
             return True
 
+    def get_infection_ratio(self):
+        if self.medical_state == MedicalState.Symptomatic:
+            return corona_stats.Symptomatic_infection_ratio
+        elif self.medical_state == MedicalState.Asymptomatic:
+            return corona_stats.ASymptomatic_infection_ratio
+        return 0
+
     def add_home(self, home):
         self.home = home
 

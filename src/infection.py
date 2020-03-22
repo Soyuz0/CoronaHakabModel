@@ -39,6 +39,12 @@ class InfectionManager:
 
         v = self.manager.sick_agent_vector
 
+        #a patch just for the mvp, in order to simulate infection ratio
+        rolls = np.random.random(len(self.manager.sick_agents))
+        for index,agent in enumerate(self.manager.sick_agents):
+            if rolls[index] > agent.get_infection_ratio():
+                v[agent.ID] = False
+
         u = self.manager.matrix.matrix.dot(v)
         infections = np.random.random(u.shape) < (1 - np.exp(u))
         for agent, value in zip(self.manager.agents, infections):
