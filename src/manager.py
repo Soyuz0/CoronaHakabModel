@@ -17,7 +17,7 @@ class SimulationManager:
     # GENERAL SIMULATION CONSTS:
     SIZE_OF_POPULATION = 10_000
     STEPS_TO_RUN = 150
-    AMOUT_OF_INFECTED_TO_START_WITH = 3
+    AMOUT_OF_INFECTED_TO_START_WITH = 20
 
     def __init__(self):
         self.logger = logging.getLogger('simulation')
@@ -30,7 +30,7 @@ class SimulationManager:
 
 
         self.stats_plotter = plotting.StatisticsPlotter()
-        self.update_matrix_manager = update_matrix.UpdateMatrixManager()
+        self.update_matrix_manager = update_matrix.UpdateMatrixManager(self.matrix)
         self.infection_manager = infection.InfectionManager()
 
         self.step_counter = 0
@@ -52,7 +52,7 @@ class SimulationManager:
         run one step
         """
         # update matrix
-        self.update_matrix_manager.update_matrix_step() # currently does nothing
+        self.update_matrix_manager.update_matrix_step(self.infection_manager.agents_to_home_quarantine, self.infection_manager.agents_to_full_quarantine)
         
         # update infection
         new_dead, new_recovered = \
