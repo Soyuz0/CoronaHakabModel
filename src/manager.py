@@ -24,13 +24,14 @@ class SimulationManager:
         logging.basicConfig()
         self.logger.setLevel(logging.INFO)
         self.logger.info("Creating new simulation.")
-        self.matrix = AffinityMAtrix(self.SIZE_OF_POPULATION)
+        self.matrix = AffinityMatrix(self.SIZE_OF_POPULATION)
         self.agents = self.matrix.agents
 
 
 
         self.stats_plotter = plotting.StatisticsPlotter()
         self.update_matrix_manager = update_matrix.UpdateMatrixManager()
+        self.infection_manager = InfectionManager()
 
         self.step_counter = 0
         self.infected_per_generation = [0] * self.STEPS_TO_RUN
@@ -46,23 +47,26 @@ class SimulationManager:
         self.sick_agents = set()
         self.sick_agent_vector = np.zeros(self.SIZE_OF_POPULATION, dtype=bool)
 
-    def _update_matrix(self):
-        """
-        update matrix using current policies
-        """
-        new_dead, new_recovered = _update_sick_agents()
-        self.dead_counter += new_dead
-        self.recovered_counter += new_recovered
-        # self.update_matrix_manager.update_matrix_step()
-
     def step(self):
         """
         run one step
         """
-
-        self._update_matrix()
-        self._perform_infection()
+        # update matrix
+        self.update_matrix_manager.update_matrix_step() # currently does nothing
+        
+        # update infection
+        new_dead, new_recovered = \
+            self.infection_manager.infection_step(self.sick_agent_vector,
+                                                  self.matrix,
+                                                  self.agents, 
+                                                  self.sick_agents,
+                                                  self.step_counter)
+        
+        # update stats
+        self.dead_counter += new_dead
+        self.recovered_counter += new_recovered
         self.update_stats()
+        
         self.step_counter += 1
 
     def update_stats(self):
@@ -139,6 +143,15 @@ class InfectionManager:
 
     def __init__(self):
         pass
+    
+    def infection_step(self, sick_agent_vector, matrix, agents, sick_agents, step_counter):
+        # perform infection
+        self._perform_infection(sick_agent_vector, matrix, agents, sick_agents, step_counter)
+        
+        # update agents
+        new_dead, new_recovered = self._update_sick_agents(sick_agents, sick_agent_vector, step_counter)
+        
+        return new_dead, new_recovered
     
     def _perform_infection(self, sick_agent_vector, matrix, agents, sick_agents, step_counter):
         """

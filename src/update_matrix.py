@@ -10,8 +10,8 @@ class UpdateMatrixManager:
 
     def __init__(self):
         pass
-
-    def update_matrix_step(self, matrix, family_matrix, sick_agents_vector, agents_list):
+    
+    def update_matrix_step(self):
         """
         Update the matrix step
         """
