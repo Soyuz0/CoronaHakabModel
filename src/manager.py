@@ -17,6 +17,7 @@ class SimulationManager:
     # GENERAL SIMULATION CONSTS:
     SIZE_OF_POPULATION = 10_000
     STEPS_TO_RUN = 150
+    AMOUT_OF_INFECTED_TO_START_WITH = 3
 
     def __init__(self):
         self.matrix = AffinityMAtrix(self.SIZE_OF_POPULATION)
@@ -125,7 +126,7 @@ class SimulationManager:
                 for id in family_members_ids:
                     self.matrix.matrix[agent.ID, id] = np.log(1-social_stats.family_strength_not_workers)
 
-        self.sick_agent_vector[:amount_of_infected_to_start_with] = True
+        self.sick_agent_vector[:self.AMOUT_OF_INFECTED_TO_START_WITH] = True
 
     def run(self):
         """
