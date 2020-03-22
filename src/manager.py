@@ -76,13 +76,14 @@ class SimulationManager:
         self.infected_per_generation[self.step_counter] = len(
             self.sick_agents) + self.recovered_counter + self.dead_counter
 
-    def setup_sick(self, amount_of_infected_to_start_with):
+    def setup_sick(self):
         """"
         setting up the simulation with a given amount of infected people
         """
-        for agent in islice(self.agents, amount_of_infected_to_start_with):
+        for agent in islice(self.agents, self.AMOUT_OF_INFECTED_TO_START_WITH):
             agent.infect(0)
             self.sick_agents.add(agent)
+        self.sick_agent_vector[:self.AMOUT_OF_INFECTED_TO_START_WITH] = True
             
     def generate_policy(self, workers_percent):
         """"
@@ -98,14 +99,13 @@ class SimulationManager:
                 family_members_ids = agent.home.get_indexes_of_my_circle(agent.ID)  # right now families are circle[0]
                 for id in family_members_ids:
                     self.matrix.matrix[agent.ID, id] = np.log(1-social_stats.family_strength_not_workers)
+        self.setup_sick()
 
-        self.sick_agent_vector[:self.AMOUT_OF_INFECTED_TO_START_WITH] = True
 
     def run(self):
         """
         runs full simulation
         """
-        self.setup_sick(5)
         start_time = time()
         self.generate_policy(1)
         for i in range(self.STEPS_TO_RUN):

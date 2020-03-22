@@ -56,7 +56,7 @@ class InfectionManager:
                 if result == "Dead":
                     new_dead = new_dead + 1
                 elif result == "Recovered":
-                    new_dead = new_recovered + 1
+                    new_recovered = new_recovered + 1
         sick_agents.difference_update(to_remove)
         
         return new_dead, new_recovered
