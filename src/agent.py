@@ -6,7 +6,7 @@ class Agent:
     """
     This class represents a person in our doomed world.
     """
-    __slots__ = "ssn", "ID", "home", "work", "medical_state", "infection_date", "is_home_quarantined"
+    __slots__ = "ssn", "ID", "home", "work", "medical_state", "infection_date", "is_home_quarantined", "is_full_quarantined"
 
     def __init__(self, ssn):
         self.ssn = ssn
@@ -16,6 +16,7 @@ class Agent:
         self.infection_date = None
         self.medical_state = MedicalState.Healthy
         self.is_home_quarantined = False
+        self.is_full_quarantined = False
 
     def __str__(self):
         return "<Person,  ssn={}, medical={}>".format(self.ssn, self.medical_state)

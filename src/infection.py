@@ -1,4 +1,5 @@
 import numpy as np
+import plot_stats
 
 
 class InfectionManager:
@@ -7,10 +8,14 @@ class InfectionManager:
     """
     
     def __init__(self):
+        self.agents_to_home_quarantine = []
+        self.agents_to_full_quarantine = []
         pass
     
     def infection_step(self, sick_agent_vector, matrix, agents, sick_agents, step_counter):
         # perform infection
+        self.agents_to_home_quarantine.clear()
+        self.agents_to_full_quarantine.clear()
         self._perform_infection(sick_agent_vector, matrix, agents, sick_agents, step_counter)
         
         # update agents
@@ -36,7 +41,12 @@ class InfectionManager:
         for agent, value in zip(agents, infections):
             if value and agent.infect(step_counter):
                 sick_agent_vector[agent.ID] = True
-                sick_agents.add(agent) 
+                sick_agents.add(agent)
+                if plot_stats.home_quarantine_sicks and np.random.random() < plot_stats.precents_of_caught_sicks: #todo switch to a specific distribution
+                    self.agents_to_home_quarantine.append(agent)
+                if plot_stats.full_quarantine_sicks and np.random.random() < plot_stats.precents_of_caught_sicks:
+                    self.agents_to_full_quarantine.append(agent)
+
                 
     def _update_sick_agents(self, sick_agents, sick_agent_vector, step_counter):
         """
