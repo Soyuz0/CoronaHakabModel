@@ -33,7 +33,13 @@ class AffinityMAtrix:
         self.m_work = self._create_intra_workplace_connections()
         self.m_random = self._create_random_connectivity()
 
+        # switches all matrixes to csr, for efficency later on (in home quarantine calculations)
+        self.m_families = self.m_families.tocsr()
+        self.m_work = self.m_work.tocsr()
+        self.m_random = self.m_random.tocsr()
+
         self.matrix = self.m_families + self.m_work + self.m_random
+        # self.matrix = self.m_random.tocsr()
 
         self.normalize()
 
@@ -181,8 +187,10 @@ class AffinityMAtrix:
         non_zero_elements = self.matrix.count_nonzero()
 
         b = non_zero_elements / self.size  # average number of connections per person per day
-        d = r0 / corona_stats.average_infection_length / b  # avarage probability for infection in each meeting as should be
+        d = r0 / (
+                    corona_stats.average_infection_length * b)  # avarage probability for infection in each meeting as should be
         average_edge_weight_in_matrix = self.matrix.sum() / non_zero_elements  # avarage probability for infection in each meeting in current matrix
+        self.factor = d / average_edge_weight_in_matrix  # saves this so that connections will be easily re-astablished later on
         self.matrix = self.matrix * d / average_edge_weight_in_matrix  # (alpha = d / average_edge_weight_in_matrix) now each entry in W is such that bd=R0
         social_stats.family_strength_not_workers = social_stats.family_strength_not_workers * d / average_edge_weight_in_matrix
 
