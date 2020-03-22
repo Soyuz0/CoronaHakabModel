@@ -50,45 +50,10 @@ class SimulationManager:
         """
         update matrix using current policies
         """
-        self._update_sick_agents()
+        new_dead, new_recovered = _update_sick_agents()
+        self.dead_counter += new_dead
+        self.recovered_counter += new_recovered
         # self.update_matrix_manager.update_matrix_step()
-
-    def _update_sick_agents(self):
-        """
-        after each day, go through all sick agents and updates their status (allowing them to recover or die)
-        """
-        to_remove = set()
-        rolls = np.random.random(len(self.sick_agents))
-        for agent, roll in zip(self.sick_agents, rolls):
-            result = agent.day_passed(roll, self.step_counter)
-            if result:
-                to_remove.add(agent)
-                self.sick_agent_vector[agent.ID] = False
-                if result == "Dead":
-                    self.dead_counter = self.dead_counter + 1
-                elif result == "Recovered":
-                    self.recovered_counter = self.recovered_counter + 1
-        self.sick_agents.difference_update(to_remove)
-
-    def _perform_infection(self):
-        """
-        perform the infection stage by multiply matrix with infected vector and try to infect agents.
-
-        v = [i for i in self.agents.is_infectious]
-        perform w*v
-        for each person in v:
-            if rand() < v[i]
-                agents[i].infect
-        """
-
-        v = self.sick_agent_vector
-
-        u = self.matrix.matrix.dot(v)
-        infections = np.random.random(u.shape) < (1 - np.exp(u))
-        for agent, value in zip(self.agents, infections):
-            if value and agent.infect(self.step_counter):
-                self.sick_agent_vector[agent.ID] = True
-                self.sick_agents.add(agent)
 
     def step(self):
         """
@@ -170,3 +135,50 @@ class SimulationManager:
         return "<SimulationManager: SIZE_OF_POPULATION={}, STEPS_TO_RUN={}>".format(self.SIZE_OF_POPULATION,
                                                                                     self.STEPS_TO_RUN)
     
+class InfectionManager:
+
+    def __init__(self):
+        pass
+    
+    def _perform_infection(self, sick_agent_vector, matrix, agents, sick_agents, step_counter):
+        """
+        perform the infection stage by multiply matrix with infected vector and try to infect agents.
+
+        v = [i for i in self.agents.is_infectious]
+        perform w*v
+        for each person in v:
+            if rand() < v[i]
+                agents[i].infect
+        """
+
+        v = sick_agent_vector
+
+        u = matrix.matrix.dot(v)
+        infections = np.random.random(u.shape) < (1 - np.exp(u))
+        for agent, value in zip(agents, infections):
+            if value and agent.infect(step_counter):
+                sick_agent_vector[agent.ID] = True
+                sick_agents.add(agent) 
+                
+    def _update_sick_agents(self, sick_agents, sick_agent_vector, step_counter):
+        """
+        after each day, go through all sick agents and updates their status (allowing them to recover or die)
+        """
+        # return parameters
+        new_dead = 0
+        new_recovered = 0
+        
+        to_remove = set()
+        rolls = np.random.random(len(sick_agents))
+        for agent, roll in zip(sick_agents, rolls):
+            result = agent.day_passed(roll, step_counter)
+            if result:
+                to_remove.add(agent)
+                sick_agent_vector[agent.ID] = False
+                if result == "Dead":
+                    new_dead = new_dead + 1
+                elif result == "Recovered":
+                    new_dead = new_recovered + 1
+        sick_agents.difference_update(to_remove)
+        
+        return new_dead, new_recovered
