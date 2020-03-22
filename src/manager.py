@@ -31,7 +31,7 @@ class SimulationManager:
 
         self.stats_plotter = plotting.StatisticsPlotter()
         self.update_matrix_manager = update_matrix.UpdateMatrixManager(self.matrix)
-        self.infection_manager = infection.InfectionManager()
+        self.infection_manager = infection.InfectionManager(self)
 
         self.step_counter = 0
         self.infected_per_generation = [0] * self.STEPS_TO_RUN
@@ -56,11 +56,7 @@ class SimulationManager:
         
         # update infection
         new_dead, new_recovered = \
-            self.infection_manager.infection_step(self.sick_agent_vector,
-                                                  self.matrix,
-                                                  self.agents, 
-                                                  self.sick_agents,
-                                                  self.step_counter)
+            self.infection_manager.infection_step()
         
         # update stats
         self.dead_counter += new_dead
@@ -83,7 +79,6 @@ class SimulationManager:
         for agent in islice(self.agents, self.AMOUT_OF_INFECTED_TO_START_WITH):
             agent.infect(0)
             self.sick_agents.add(agent)
-        self.sick_agent_vector[:self.AMOUT_OF_INFECTED_TO_START_WITH] = True
             
     def generate_policy(self, workers_percent):
         """"
@@ -112,7 +107,7 @@ class SimulationManager:
             self.step()
             self.logger.info(
                 "performing step {}/{} : {} people are sick, {} people are recovered, {} people are dead, total amount of {} people were infected".format(
-                    i,
+                    i + 1,
                     self.STEPS_TO_RUN,
                     self.sick_per_generation[
                         i],

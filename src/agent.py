@@ -39,9 +39,16 @@ class Agent:
         Will try to infect this agent with given probability
         """
         if self.is_infectable():
-            self.change_medical_state(MedicalState.Infected)
+            self.change_medical_state(MedicalState.Silent)
             self.infection_date = date
             return True
+
+    def get_infection_ratio(self):
+        if self.medical_state == MedicalState.Symptomatic:
+            return corona_stats.Symptomatic_infection_ratio
+        elif self.medical_state == MedicalState.Asymptomatic:
+            return corona_stats.ASymptomatic_infection_ratio
+        return 0
 
     def add_home(self, home):
         self.home = home
@@ -51,18 +58,6 @@ class Agent:
 
     def change_medical_state(self, new_status):
         self.medical_state = new_status
-
-    def day_passed(self, roll, current_date):
-        if self.infection_date is None or self.infection_date < 0:
-            return False
-        if current_date >= self.infection_date + corona_stats.average_infection_length:  # todo use random with a given deviation
-            if roll < corona_stats.death_ratio:
-                self.change_medical_state(MedicalState.Deceased)
-                return "Dead"
-            else:
-                self.change_medical_state(MedicalState.Immune)
-                return "Recovered"
-        return False
 
     def __cmp__(self, other):
         return self.ID == other.ID
