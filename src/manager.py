@@ -1,13 +1,12 @@
 from itertools import islice
 from time import time
-
-import yappi
-
 from affinity_matrix import AffinityMAtrix
 import logging
 import numpy as np
 import plotting
 import update_matrix
+import random as rnd
+import corona_stats, social_stats
 
 
 class SimulationManager:
@@ -18,13 +17,18 @@ class SimulationManager:
     # GENERAL SIMULATION CONSTS:
     SIZE_OF_POPULATION = 10_000
     STEPS_TO_RUN = 150
+    AMOUT_OF_INFECTED_TO_START_WITH = 3
 
     def __init__(self):
+        self.logger = logging.getLogger('simulation')
+        logging.basicConfig()
+        self.logger.setLevel(logging.INFO)
+        self.logger.info("Creating new simulation.")
         self.matrix = AffinityMAtrix(self.SIZE_OF_POPULATION)
         self.agents = self.matrix.agents
-        logging.basicConfig()
-        self.logger = logging.getLogger('simulation')
-        self.logger.setLevel(logging.INFO)
+
+
+
         self.stats_plotter = plotting.StatisticsPlotter()
         self.update_matrix_manager = update_matrix.UpdateMatrixManager()
 
@@ -110,8 +114,23 @@ class SimulationManager:
         for agent in islice(self.agents, amount_of_infected_to_start_with):
             agent.infect(0)
             self.sick_agents.add(agent)
+            
+    def generate_policy(self, workers_percent):
+        """"
+        setting up the simulation with a given amount of infected people
+        """
+        for agent in self.agents:
+            if agent.work is None:
+                continue
+            if rnd.random() > workers_percent:
+                work_members_ids = agent.work.get_indexes_of_my_circle(agent.ID)  # right now works are circle[1]
+                for id in work_members_ids:
+                    self.matrix.matrix[agent.ID, id] = np.log(1)
+                family_members_ids = agent.home.get_indexes_of_my_circle(agent.ID)  # right now families are circle[0]
+                for id in family_members_ids:
+                    self.matrix.matrix[agent.ID, id] = np.log(1-social_stats.family_strength_not_workers)
 
-        self.sick_agent_vector[:amount_of_infected_to_start_with] = True
+        self.sick_agent_vector[:self.AMOUT_OF_INFECTED_TO_START_WITH] = True
 
     def run(self):
         """
@@ -119,6 +138,7 @@ class SimulationManager:
         """
         self.setup_sick(5)
         start_time = time()
+        self.generate_policy(1)
         for i in range(self.STEPS_TO_RUN):
             self.step()
             self.logger.info(
@@ -134,12 +154,17 @@ class SimulationManager:
 
         # plot results
         # logoritmic scale:
-        # self.stats_plotter.plot_infected_per_generation(list(map(lambda o: np.log(o), self.infected_per_generation)))
+        #self.stats_plotter.plot_infected_per_generation(list(map(lambda o: np.log(o), self.infected_per_generation)))
         # linear scale:
+        #self.stats_plotter.plot_infected_per_generation(self.infected_per_generation, self.recovered_per_generation,
+        #                                                   self.dead_per_generation, self.sick_per_generation)
+        #self.stats_plotter.plot_log_with_linear_regression(self.sick_per_generation, self.recovered_per_generation,
+        #                                                   self.dead_per_generation)
         # self.stats_plotter.plot_log_with_linear_regression(self.sick_per_generation)
 
     def plot(self):
-        self.stats_plotter.plot_infected_per_generation(self.sick_per_generation)
+        self.stats_plotter.plot_infected_per_generation(self.infected_per_generation, self.recovered_per_generation,
+                                                           self.dead_per_generation, self.sick_per_generation)
 
     def __str__(self):
         return "<SimulationManager: SIZE_OF_POPULATION={}, STEPS_TO_RUN={}>".format(self.SIZE_OF_POPULATION,

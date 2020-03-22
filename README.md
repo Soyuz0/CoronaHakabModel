@@ -2,7 +2,7 @@
 
 ## Run the simulator
 - go to src folder
-- run: **python manager.py**
+- run: **python main.py**
 
 ## Workflow -
 - When working, **work on a new git branch**.
