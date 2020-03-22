@@ -135,7 +135,7 @@ class SimulationManager:
         runs full simulation
         """
         self.setup_sick(5)
-		start_time = time()
+	start_time = time()
         self.generate_policy(1)
         for i in range(self.STEPS_TO_RUN):
             self.step()
