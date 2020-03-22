@@ -188,7 +188,7 @@ class AffinityMatrix:
 
         b = non_zero_elements / self.size  # average number of connections per person per day
         d = r0 / (
-                    corona_stats.average_infection_length * b)  # avarage probability for infection in each meeting as should be
+                    corona_stats.average_sick_time * b)  # avarage probability for infection in each meeting as should be
         average_edge_weight_in_matrix = self.matrix.sum() / non_zero_elements  # avarage probability for infection in each meeting in current matrix
         self.factor = d / average_edge_weight_in_matrix  # saves this so that connections will be easily re-astablished later on
         self.matrix = self.matrix * d / average_edge_weight_in_matrix  # (alpha = d / average_edge_weight_in_matrix) now each entry in W is such that bd=R0

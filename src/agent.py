@@ -39,7 +39,7 @@ class Agent:
         Will try to infect this agent with given probability
         """
         if self.is_infectable():
-            self.change_medical_state(MedicalState.Infected)
+            self.change_medical_state(MedicalState.Silent)
             self.infection_date = date
             return True
 
@@ -51,18 +51,6 @@ class Agent:
 
     def change_medical_state(self, new_status):
         self.medical_state = new_status
-
-    def day_passed(self, roll, current_date):
-        if self.infection_date is None or self.infection_date < 0:
-            return False
-        if current_date >= self.infection_date + corona_stats.average_infection_length:  # todo use random with a given deviation
-            if roll < corona_stats.death_ratio:
-                self.change_medical_state(MedicalState.Deceased)
-                return "Dead"
-            else:
-                self.change_medical_state(MedicalState.Immune)
-                return "Recovered"
-        return False
 
     def __cmp__(self, other):
         return self.ID == other.ID
