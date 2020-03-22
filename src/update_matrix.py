@@ -1,4 +1,4 @@
-from affinity_matrix import AffinityMAtrix
+from affinity_matrix import AffinityMatrix
 from agent import Agent
 import numpy as np
 
@@ -20,7 +20,7 @@ class UpdateMatrixManager:
 
         return
 
-    def home_quarantine_agent(self, affinity_matrix: AffinityMAtrix, agent: Agent):
+    def home_quarantine_agent(self, affinity_matrix: AffinityMatrix, agent: Agent):
         """
         gets and agent and puts him in home quarenite.
         updates the matrix accordingly
@@ -40,7 +40,7 @@ class UpdateMatrixManager:
 
         agent.is_home_quarantined = True
 
-    def remove_agent_from_home_quarantine(self, affinity_matrix: AffinityMAtrix, agent: Agent):
+    def remove_agent_from_home_quarantine(self, affinity_matrix: AffinityMatrix, agent: Agent):
         """
         removes an agent from home quarantine
         updates the matrix accordingly
