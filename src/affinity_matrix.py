@@ -12,7 +12,7 @@ import corona_stats, social_stats
 m_type = lil_matrix
 
 
-class AffinityMAtrix:
+class AffinityMatrix:
     """
     This class builds and maintains the sparse affinity matrix W which describes the social connections
     (the social circles).

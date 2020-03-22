@@ -1,6 +1,6 @@
 from itertools import islice
 from time import time
-from affinity_matrix import AffinityMAtrix
+from affinity_matrix import AffinityMatrix
 import logging
 import numpy as np
 import plotting
@@ -169,3 +169,4 @@ class SimulationManager:
     def __str__(self):
         return "<SimulationManager: SIZE_OF_POPULATION={}, STEPS_TO_RUN={}>".format(self.SIZE_OF_POPULATION,
                                                                                     self.STEPS_TO_RUN)
+    
