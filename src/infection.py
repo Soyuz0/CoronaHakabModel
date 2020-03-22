@@ -4,16 +4,16 @@ import corona_stats
 from medical_state import MedicalState
 
 
+
 class InfectionManager:
     """
     Manages the infection stage
     """
-
+    
     def __init__(self, manager):
         self.agents_to_home_quarantine = []
         self.agents_to_full_quarantine = []
         self.manager = manager # more comfetable passing the manager object once. this passes a refrence so it will always be updated
-        pass
 
     def infection_step(self):
         # perform infection
