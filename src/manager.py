@@ -20,11 +20,15 @@ class SimulationManager:
     AMOUT_OF_INFECTED_TO_START_WITH = 3
 
     def __init__(self):
+        self.logger = logging.getLogger('simulation')
+        logging.basicConfig()
+        self.logger.setLevel(logging.INFO)
+        self.logger.info("Creating new simulation.")
         self.matrix = AffinityMAtrix(self.SIZE_OF_POPULATION)
         self.agents = self.matrix.agents
-        logging.basicConfig()
-        self.logger = logging.getLogger('simulation')
-        self.logger.setLevel(logging.INFO)
+
+
+
         self.stats_plotter = plotting.StatisticsPlotter()
         self.update_matrix_manager = update_matrix.UpdateMatrixManager()
 
