@@ -17,7 +17,7 @@ class SimulationManager:
     # GENERAL SIMULATION CONSTS:
     SIZE_OF_POPULATION = 10_000
     STEPS_TO_RUN = 150
-    AMOUT_OF_INFECTED_TO_START_WITH = 20
+    AMOUNT_OF_INFECTED_TO_START_WITH = 20
 
     def __init__(self):
         self.logger = logging.getLogger('simulation')
@@ -76,7 +76,7 @@ class SimulationManager:
         """"
         setting up the simulation with a given amount of infected people
         """
-        for agent in islice(self.agents, self.AMOUT_OF_INFECTED_TO_START_WITH):
+        for agent in islice(self.agents, self.AMOUNT_OF_INFECTED_TO_START_WITH):
             agent.infect(0)
             self.sick_agents.add(agent)
             
