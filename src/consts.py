@@ -17,7 +17,7 @@ class Consts(NamedTuple):
                + self.Symptomatic_infection_ratio * (1 - self.Asymptomatic_ratio)
 
     # simulation parameters
-    SIZE_OF_POPULATION = 10_000
+    SIZE_OF_POPULATION = 100_000
     STEPS_TO_RUN = 250
     INITIAL_INFECTED_COUNT = 20
 
@@ -29,6 +29,7 @@ class Consts(NamedTuple):
 
     # policy stats
     # todo this reeeeally shouldn't be hard-coded
+    active_quarantine = True
     stop_work_days = 30
     resume_work_days = 60
 

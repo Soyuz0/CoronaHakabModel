@@ -103,10 +103,11 @@ class SimulationManager:
         start_time = time()
         self.generate_policy(1)
         for i in range(self.consts.STEPS_TO_RUN):
-            if i == self.consts.stop_work_days:
-                self.matrix.change_work_policy(False)
-            elif i == self.consts.resume_work_days:
-                self.matrix.change_work_policy(True)
+            if Consts.active_quarantine:
+                if i == self.consts.stop_work_days:
+                    self.matrix.change_work_policy(False)
+                elif i == self.consts.resume_work_days:
+                    self.matrix.change_work_policy(True)
             self.step()
             self.logger.info(
                 f"performing step {i + 1}/{self.consts.STEPS_TO_RUN} : "
