@@ -41,6 +41,7 @@ class AffinityMatrix:
         self.matrix = self.m_families + self.m_work + self.m_random
         # self.matrix = self.m_random.tocsr()
 
+        self.factor = -1
         self.normalize()
 
     def generate_agents(self):
@@ -183,24 +184,29 @@ class AffinityMatrix:
         As r0=bd, where b is number of daily infections per person
         """
         self.logger.info(f"normalizing matrix")
-        r0 = corona_stats.r0
-        # changes r0 to fit the infection ratio (he is calculated despite the low infection ratio)
-        r0 = r0 * (1 / (
-                    corona_stats.ASymptomatic_infection_ratio * corona_stats.Asymptomatic_ratio + corona_stats.Symptomatic_infection_ratio * (
-                        1 - corona_stats.Asymptomatic_ratio)))
-        non_zero_elements = self.matrix.count_nonzero()
+        if self.factor == -1:
+            r0 = corona_stats.r0
+            # changes r0 to fit the infection ratio (he is calculated despite the low infection ratio)
+            r0 = r0 * (1 / (
+                        corona_stats.ASymptomatic_infection_ratio * corona_stats.Asymptomatic_ratio + corona_stats.Symptomatic_infection_ratio * (
+                            1 - corona_stats.Asymptomatic_ratio)))
+            non_zero_elements = self.matrix.count_nonzero()
 
-        b = non_zero_elements / self.size  # average number of connections per person per day
-        d = r0 / (
-                corona_stats.average_sick_time * b)  # avarage probability for infection in each meeting as should be
-        average_edge_weight_in_matrix = self.matrix.sum() / non_zero_elements  # avarage probability for infection in each meeting in current matrix
-        self.factor = d / average_edge_weight_in_matrix  # saves this so that connections will be easily re-astablished later on
-        self.matrix = self.matrix * d / average_edge_weight_in_matrix  # (alpha = d / average_edge_weight_in_matrix) now each entry in W is such that bd=R0
-        social_stats.family_strength_not_workers = social_stats.family_strength_not_workers * d / average_edge_weight_in_matrix
+            b = non_zero_elements / self.size  # average number of connections per person per day
+            d = r0 / (
+                    corona_stats.average_sick_time * b)  # avarage probability for infection in each meeting as should be
+            average_edge_weight_in_matrix = self.matrix.sum() / non_zero_elements  # avarage probability for infection in each meeting in current matrix
+            self.factor = d / average_edge_weight_in_matrix  # saves this so that connections will be easily re-astablished later on
+        self.matrix = self.matrix * self.factor  # now each entry in W is such that bd=R0
+        social_stats.family_strength_not_workers = social_stats.family_strength_not_workers * self.factor
 
         # switching from probability to ln(1-p):
         non_zero_keys = self.matrix.nonzero()
         self.matrix[non_zero_keys] = np.log(1 - self.matrix[non_zero_keys])
+
+    def change_work_policy(self, state):
+        self.matrix = self.m_families + state * self.m_work + self.m_random
+        self.normalize()
 
 
 def dot(self, v):

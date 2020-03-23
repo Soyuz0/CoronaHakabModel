@@ -16,7 +16,7 @@ class SimulationManager:
 
     # GENERAL SIMULATION CONSTS:
     SIZE_OF_POPULATION = 10_000
-    STEPS_TO_RUN = 150
+    STEPS_TO_RUN = 250
     AMOUNT_OF_INFECTED_TO_START_WITH = 20
 
     def __init__(self):
@@ -104,6 +104,10 @@ class SimulationManager:
         start_time = time()
         self.generate_policy(1)
         for i in range(self.STEPS_TO_RUN):
+            if i == 30:
+                self.matrix.change_work_policy(False)
+            elif i == 60:
+                self.matrix.change_work_policy(True)
             self.step()
             self.logger.info(
                 "performing step {}/{} : {} people are sick, {} people are recovered, {} people are dead, total amount of {} people were infected".format(
