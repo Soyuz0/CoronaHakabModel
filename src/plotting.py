@@ -4,6 +4,7 @@ except ImportError:
     pass
 else:
     import matplotlib
+
     matplotlib.use("Qt5Agg")
 
 from matplotlib import pyplot as plt
@@ -18,19 +19,22 @@ class StatisticsPlotter:
     """
 
     def plot_infected_per_generation(self, infected_per_generation_vector, recovered_per_generation,
-                                     dead_per_generation, sick_per_generation):
+                                     dead_per_generation, sick_per_generation, max_scale=True):
         total_size = Consts.population_size
         title = f'Infections vs. Days, size={total_size}'
+        text_height = infected_per_generation_vector[-1] / 2
+        if max_scale:
+            text_height = total_size / 2
 
         # policies
         if Consts.active_quarantine:
-            title = title + "\napplying quarantine from day {} to day {}".format(Consts.stop_work_days,
-                                                                                Consts.resume_work_days)
+            title = title + "\napplying lockdown from day {} to day {}".format(Consts.stop_work_days,
+                                                                               Consts.resume_work_days)
             plt.axvline(x=Consts.stop_work_days, color='#0000ff')
-            plt.text(Consts.stop_work_days + 2, total_size / 2, f'day {Consts.stop_work_days} - pause all work',
+            plt.text(Consts.stop_work_days + 2, text_height, f'day {Consts.stop_work_days} - pause all work',
                      rotation=90)
             plt.axvline(x=Consts.resume_work_days, color='#0000cc')
-            plt.text(Consts.resume_work_days + 2, total_size / 2, f'day {Consts.resume_work_days} - resume all work',
+            plt.text(Consts.resume_work_days + 2, text_height, f'day {Consts.resume_work_days} - resume all work',
                      rotation=90)
 
         # plot parameters
@@ -40,7 +44,8 @@ class StatisticsPlotter:
 
         # visualization
         # TODO: should be better
-        plt.ylim((0, total_size))
+        if max_scale:
+            plt.ylim((0, total_size))
         plt.grid()
 
         # data
@@ -49,8 +54,13 @@ class StatisticsPlotter:
         p3 = plt.plot(dead_per_generation)
         p4 = plt.plot(sick_per_generation)
         plt.legend((p1[0], p2[0], p3[0], p4[0]), ("infected", "recovered", "dead", "currently sick"))
-        plt.savefig(f"{total_size} agents, applying quarantine = {Consts.active_quarantine}")
+
+        # showing and saving the graph
+        plt.savefig(f"{total_size} agents, applying quarantine = {Consts.active_quarantine}, max scale = {max_scale}")
         plt.show()
+        if max_scale:
+            self.plot_infected_per_generation(infected_per_generation_vector, recovered_per_generation,
+                                              dead_per_generation, sick_per_generation, False)
 
     def plot_log_with_linear_regression(self, infected_per_generation_vector, recovered_per_generation,
                                         dead_per_generation):
