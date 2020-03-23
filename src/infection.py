@@ -37,7 +37,7 @@ class InfectionManager:
                 agents[i].infect
         """
 
-        v = self.manager.sick_agent_vector
+        v = np.copy(self.manager.sick_agent_vector)
 
         #a patch just for the mvp, in order to simulate infection ratio
         rolls = np.random.random(len(self.manager.sick_agents))
