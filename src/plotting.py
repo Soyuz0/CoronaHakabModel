@@ -18,9 +18,9 @@ class StatisticsPlotter:
 
         # policies
         plt.axvline(x=Consts.stop_work_days, color='#0000ff')
-        plt.text(Consts.stop_work_days + 2, total_size / 2, f'day {Consts.stop_work_days} - no work policy', rotation=90)
+        plt.text(Consts.stop_work_days + 2, total_size / 2, f'day {Consts.stop_work_days} - pause all work', rotation=90)
         plt.axvline(x=Consts.resume_work_days, color='#0000cc')
-        plt.text(Consts.resume_work_days + 2, total_size / 2, f'day {Consts.resume_work_days} - resume work', rotation=90)
+        plt.text(Consts.resume_work_days + 2, total_size / 2, f'day {Consts.resume_work_days} - resume all work', rotation=90)
 
         # visualization
         # TODO: should be better
