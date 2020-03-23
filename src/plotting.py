@@ -1,6 +1,7 @@
 from matplotlib import pyplot as plt
 import numpy as np
 from sklearn.linear_model import LinearRegression
+import policy_stats
 
 class StatisticsPlotter:
     """
@@ -8,18 +9,30 @@ class StatisticsPlotter:
     """
 
     def plot_infected_per_generation(self, infected_per_generation_vector, recovered_per_generation,
-                                                           dead_per_generation, sick_per_generation):
+                                                           dead_per_generation, sick_per_generation, total_size):
         # plot parameters
-        plt.title('injection to time')
-        plt.xlabel('steps', color='#1C2833')
+        plt.title(f'Infections vs. Days, size={total_size}')
+        plt.xlabel('days', color='#1C2833')
         plt.ylabel('people', color='#1C2833')
+
+
+        # policies
+        plt.axvline(x=policy_stats.stop_work_days, color='#0000ff')
+        plt.text(policy_stats.stop_work_days + 0.1, total_size / 2, 'no work policy', rotation=90)
+        plt.axvline(x=policy_stats.resume_work_days, color='#0000cc')
+        plt.text(policy_stats.resume_work_days + 0.1, total_size / 2, 'resume work', rotation=90)
+
+        # visualization
+        # TODO: should be better
+        plt.ylim((0, total_size))
+        plt.grid()
 
         # data
         p1 = plt.plot(infected_per_generation_vector)
         p2 = plt.plot(recovered_per_generation)
         p3 = plt.plot(dead_per_generation)
         p4 = plt.plot(sick_per_generation)
-        plt.legend((p1[0], p2[0], p3[0], p4[0]), ("infected", "recovered", "dead", "sick"))
+        plt.legend((p1[0], p2[0], p3[0], p4[0]), ("infected", "recovered", "dead", "currently sick"))
         plt.show()
 
     def plot_log_with_linear_regression(self, infected_per_generation_vector, recovered_per_generation,

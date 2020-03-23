@@ -132,7 +132,8 @@ class SimulationManager:
 
     def plot(self):
         self.stats_plotter.plot_infected_per_generation(self.infected_per_generation, self.recovered_per_generation,
-                                                           self.dead_per_generation, self.sick_per_generation)
+                                                           self.dead_per_generation, self.sick_per_generation,
+                                                        self.SIZE_OF_POPULATION)
 
     def __str__(self):
         return "<SimulationManager: SIZE_OF_POPULATION={}, STEPS_TO_RUN={}>".format(self.SIZE_OF_POPULATION,
