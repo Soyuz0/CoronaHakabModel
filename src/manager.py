@@ -6,7 +6,7 @@ import numpy as np
 import plotting
 import update_matrix
 import random as rnd
-import corona_stats, social_stats
+import corona_stats, social_stats, policy_stats
 import infection
 
 class SimulationManager:
@@ -104,9 +104,9 @@ class SimulationManager:
         start_time = time()
         self.generate_policy(1)
         for i in range(self.STEPS_TO_RUN):
-            if i == 30:
+            if i == policy_stats.stop_work_days:
                 self.matrix.change_work_policy(False)
-            elif i == 60:
+            elif i == policy_stats.resume_work_days:
                 self.matrix.change_work_policy(True)
             self.step()
             self.logger.info(
