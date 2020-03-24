@@ -24,8 +24,10 @@ except ImportError:
 
 class Supervisor:
     """
-    Plots statistics about the simulation.
+    records and plots statistics about the simulation.
     """
+    # todo I want the supervisor to decide when the simulation ends
+    # todo record write/read results as text
 
     def __init__(self, states_to_track: Iterable[MedicalState]):
         self.state_history: Dict[MedicalState, List[int]] = {s: [] for s in states_to_track}

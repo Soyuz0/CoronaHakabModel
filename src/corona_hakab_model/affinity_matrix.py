@@ -204,29 +204,3 @@ class AffinityMatrix:
     def change_work_policy(self, state):
         self.matrix = self.m_families + state * self.m_work + self.m_random
         self.normalize()
-
-
-# todo delete
-def dot(self, v):
-    """
-    performs dot operation between this matrix and v
-    :param v: with the size of self.size
-
-    :return: matrix*v
-    """
-
-    return self.matrix.dot(v)
-
-
-def zero_column(col_id):
-    """
-    Turn the chosen column to zeroes.
-    """
-    pass
-
-
-def add_to_column(col_id, col):
-    """
-    Add the given column to the chosen column
-    """
-    pass

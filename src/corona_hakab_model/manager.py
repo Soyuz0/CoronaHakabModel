@@ -4,12 +4,12 @@ from typing import Tuple
 from affinity_matrix import AffinityMatrix
 import logging
 import numpy as np
-import plotting
 import update_matrix
 import infection
 from agent import Agent
 from consts import Consts
 from state_machine import PendingTransfers
+from supervisor import Supervisor
 
 
 class SimulationManager:
@@ -36,7 +36,7 @@ class SimulationManager:
 
         self.matrix = AffinityMatrix(self)
 
-        self.supervisor = plotting.Supervisor(
+        self.supervisor = Supervisor(
             self.medical_machine[states_to_track]
         )
         self.update_matrix_manager = update_matrix.UpdateMatrixManager(self.matrix)
@@ -58,7 +58,7 @@ class SimulationManager:
         changed_state[self.medical_machine.state_upon_infection] = self.infection_manager.infection_step()
 
         # progress transfers
-        # todo move to own function
+        # todo move to own function?
 
         moved = self.pending_transfers.advance()
         for (agent_ind, destination, _) in moved:

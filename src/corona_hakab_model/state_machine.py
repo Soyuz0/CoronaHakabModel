@@ -30,7 +30,7 @@ class PendingTransfers:
             self.append(t)
 
     def advance(self) -> Sequence[PendingTransfer]:
-        # todo improve (rotating array?)
+        # todo improve? (rotating array?)
         new_inner = {}
         ret = ()
         for k, v in self.inner.items():
@@ -72,9 +72,7 @@ class StochasticState(State):
         self.destinations: List[State] = []
         self.durations: List[rv_discrete] = []
 
-    def add_transfer(self, destination: State, duration: Union[rv_discrete, int, Tuple[int, int], Tuple[int, int, int]],
-                     probability: Union[float, type(...)]):
-
+    def add_transfer(self, destination: State, duration: rv_discrete, probability: Union[float, type(...)]):
         if probability is ...:
             p = 1
         elif self.durations:
@@ -85,21 +83,6 @@ class StochasticState(State):
             p = probability
         # todo improve?
         self.probs = np.append(self.probs, p)
-
-        if isinstance(duration, int):
-            duration = rv_discrete(name='const', values=([duration], [1]))()
-        if isinstance(duration, tuple):
-            if len(duration) == 2:
-                duration = randint(*duration)
-            elif len(duration) == 3:
-                # todo this is super temporary
-                a, mid, b = duration
-                min_diff = min(mid - a, b - mid)
-                a, b = mid - min_diff, mid + min_diff
-                duration = randint(a, b)
-            else:
-                # todo more descriptive
-                raise TypeError
 
         self.destinations.append(destination)
         self.durations.append(duration)
