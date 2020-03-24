@@ -2,10 +2,9 @@ import logging
 from random import shuffle
 
 import numpy as np
-from scipy.sparse import lil_matrix
-
 from agent import Agent, Circle
 from consts import Consts
+from scipy.sparse import lil_matrix
 
 m_type = lil_matrix
 
@@ -25,7 +24,7 @@ class AffinityMatrix:
         self.size = size  # population size
 
         self.matrix = m_type((size, size), dtype=np.float32)
-        self.logger = logging.getLogger('simulation')
+        self.logger = logging.getLogger("simulation")
         self.logger.info("Building new AffinityMatrix")
         self.agents = self.generate_agents()
 
@@ -166,7 +165,9 @@ class AffinityMatrix:
 
         matrix = m_type((self.size, self.size), dtype=np.float32)
         amount_of_connections = self.consts.average_amount_of_strangers
-        stranger_ids = np.random.randint(0, self.size - 1, self.size * amount_of_connections)
+        stranger_ids = np.random.randint(
+            0, self.size - 1, self.size * amount_of_connections
+        )
         ids = np.arange(self.size).repeat(amount_of_connections)
 
         matrix[ids, stranger_ids] = self.consts.stranger_strength
@@ -192,12 +193,14 @@ class AffinityMatrix:
             # average number of connections per person per day
             b = non_zero_elements / self.size
             # average probability for infection in each meeting as should be
-            d = r0 / (self.consts.average_sick_time_days * b)
+            d = r0 / (self.consts.average_infecting_days() * b)
             # avarage probability for infection in each meeting in current matrix
             average_edge_weight_in_matrix = self.matrix.sum() / non_zero_elements
             # saves this so that connections will be easily re-established later on
             self.factor = d / average_edge_weight_in_matrix
-        self.matrix = self.matrix * self.factor  # now each entry in W is such that bd=R0
+        self.matrix = (
+            self.matrix * self.factor
+        )  # now each entry in W is such that bd=R0
 
         # switching from probability to ln(1-p):
         non_zero_keys = self.matrix.nonzero()
