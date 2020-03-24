@@ -192,7 +192,7 @@ class AffinityMatrix:
             # average number of connections per person per day
             b = non_zero_elements / self.size
             # average probability for infection in each meeting as should be
-            d = r0 / (self.consts.average_sick_time_days * b)
+            d = r0 / (self.consts.average_infecting_days() * b)
             # avarage probability for infection in each meeting in current matrix
             average_edge_weight_in_matrix = self.matrix.sum() / non_zero_elements
             # saves this so that connections will be easily re-established later on
