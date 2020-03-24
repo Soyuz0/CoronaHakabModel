@@ -14,5 +14,10 @@ class MedicalState(IntEnum):
 
 
 INFECTABLE_MEDICAL_STATES = {MedicalState.Healthy}
-INFECTIONS_MEDICAL_STATES = {MedicalState.Asymptomatic, MedicalState.Symptomatic, MedicalState.Hospitalized, MedicalState.Icu}
+INFECTIONS_MEDICAL_STATES = {
+    MedicalState.Asymptomatic,
+    MedicalState.Symptomatic,
+    MedicalState.Hospitalized,
+    MedicalState.Icu,
+}
 IMUNE_MEDICAL_STATES = {MedicalState.Immune, MedicalState.Deceased}
