@@ -1,6 +1,6 @@
+import numpy as np
 from affinity_matrix import AffinityMatrix
 from agent import Agent
-import numpy as np
 
 
 class UpdateMatrixManager:
@@ -11,7 +11,9 @@ class UpdateMatrixManager:
     def __init__(self, affinity_matrix_ref):
         self.affinity_matrix = affinity_matrix_ref
 
-    def update_matrix_step(self, agents_to_home_quarantine=(), agents_to_full_quarantine=()):
+    def update_matrix_step(
+        self, agents_to_home_quarantine=(), agents_to_full_quarantine=()
+    ):
         """
         Update the matrix step
         """
@@ -32,13 +34,16 @@ class UpdateMatrixManager:
             return
         families = self.affinity_matrix.m_families
         # changing your col (now you won't infect any one outside of your home)
-        indices = np.full(self.affinity_matrix.size, agent.ID, dtype=int), np.arange(self.affinity_matrix.size)
-        temp = (1 - (families[indices] * self.affinity_matrix.factor))
+        indices = (
+            np.full(self.affinity_matrix.size, agent.ID, dtype=int),
+            np.arange(self.affinity_matrix.size),
+        )
+        temp = 1 - (families[indices] * self.affinity_matrix.factor)
         self.affinity_matrix.matrix[indices] = np.log(temp)
 
         # changing your row (now you won't be infected by people outside of your home)
         indices = (indices[1], indices[0])
-        temp = (1 - (families[indices] * self.affinity_matrix.factor))
+        temp = 1 - (families[indices] * self.affinity_matrix.factor)
         self.affinity_matrix.matrix[indices] = np.log(temp)
 
         agent.is_home_quarantined = True
@@ -51,7 +56,10 @@ class UpdateMatrixManager:
         if agent.is_full_quarantined:
             return
         # changing your col (now you won't infect any one)
-        indices = np.full(self.affinity_matrix.size, agent.ID, dtype=int), np.arange(self.affinity_matrix.size)
+        indices = (
+            np.full(self.affinity_matrix.size, agent.ID, dtype=int),
+            np.arange(self.affinity_matrix.size),
+        )
         self.affinity_matrix.matrix[indices] = 0
 
         # changing your row (now you won't be infected by people)
@@ -71,19 +79,30 @@ class UpdateMatrixManager:
         families = self.affinity_matrix.m_families
         works = self.affinity_matrix.m_work
         random = self.affinity_matrix.m_random
-        indices = np.full(self.affinity_matrix.size, agent.ID, dtype=int), np.arange(self.affinity_matrix.size)
-        temp = (1 - ((families[indices] + works[indices] + random[indices]) * self.affinity_matrix.factor))
+        indices = (
+            np.full(self.affinity_matrix.size, agent.ID, dtype=int),
+            np.arange(self.affinity_matrix.size),
+        )
+        temp = 1 - (
+            (families[indices] + works[indices] + random[indices])
+            * self.affinity_matrix.factor
+        )
         self.affinity_matrix.matrix[indices] = np.log(temp)
 
         # changing your row (now you will be infected by people outside your home)
         indices = (indices[1], indices[0])
-        temp = (1 - ((families[indices] + works[indices] + random[indices]) * self.affinity_matrix.factor))
+        temp = 1 - (
+            (families[indices] + works[indices] + random[indices])
+            * self.affinity_matrix.factor
+        )
         self.affinity_matrix.matrix[indices] = np.log(temp)
 
         agent.is_home_quarantined = False
         agent.is_full_quarantined = False
 
-    def apply_self_quarantine(self, matrix, family_matrix, sick_agents_vector, agents_list):  # not in use
+    def apply_self_quarantine(
+        self, matrix, family_matrix, sick_agents_vector, agents_list
+    ):  # not in use
         """
         Modifies the matrix so self quarantines are in place
         """

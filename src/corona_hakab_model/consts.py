@@ -22,13 +22,28 @@ class Consts(NamedTuple):
         assuming you are not contagious when in a hospital nor in icu.
         also ignoring moving back from icu to asymptomatic
         """
-        silent_time = self.silent_to_asymptomatic_probability * self.average_silent_to_asymptomatic_days + self.silent_to_symptomatic_probability * self.average_silent_to_symptomatic_days
-        asymptomatic_time = self.average_asymptomatic_to_recovered_days * self.silent_to_asymptomatic_probability
-        symptomatic_time = self.silent_to_symptomatic_probability * \
-                           ((
-                                        self.average_symptomatic_to_asymptomatic_days + asymptomatic_time) * self.symptomatic_to_asymptomatic_probability + \
-                            self.average_symptomatic_to_hospitalized_days * self.symptomatic_to_hospitalized_probability)
-        hosplital_time = self.silent_to_symptomatic_probability * self.symptomatic_to_hospitalized_probability * self.hospitalized_to_asymptomatic_probability * asymptomatic_time
+        silent_time = (
+            self.silent_to_asymptomatic_probability
+            * self.average_silent_to_asymptomatic_days
+            + self.silent_to_symptomatic_probability
+            * self.average_silent_to_symptomatic_days
+        )
+        asymptomatic_time = (
+            self.average_asymptomatic_to_recovered_days
+            * self.silent_to_asymptomatic_probability
+        )
+        symptomatic_time = self.silent_to_symptomatic_probability * (
+            (self.average_symptomatic_to_asymptomatic_days + asymptomatic_time)
+            * self.symptomatic_to_asymptomatic_probability
+            + self.average_symptomatic_to_hospitalized_days
+            * self.symptomatic_to_hospitalized_probability
+        )
+        hosplital_time = (
+            self.silent_to_symptomatic_probability
+            * self.symptomatic_to_hospitalized_probability
+            * self.hospitalized_to_asymptomatic_probability
+            * asymptomatic_time
+        )
         return silent_time + asymptomatic_time + symptomatic_time + hosplital_time
 
     # average probability for transmitions:
@@ -54,15 +69,28 @@ class Consts(NamedTuple):
         """
         The expected infection ratio of a random infected agent
         """
-        asymptomatic_time = self.average_asymptomatic_to_recovered_days * self.silent_to_asymptomatic_probability
-        symptomatic_time = self.silent_to_symptomatic_probability * \
-                           (
-                                       self.average_symptomatic_to_asymptomatic_days * self.symptomatic_to_asymptomatic_probability + \
-                                       self.average_symptomatic_to_hospitalized_days * self.symptomatic_to_hospitalized_probability)
-        silent_time = self.silent_to_symptomatic_probability * self.average_silent_to_symptomatic_days + self.silent_to_asymptomatic_probability * self.average_silent_to_asymptomatic_days
+        asymptomatic_time = (
+            self.average_asymptomatic_to_recovered_days
+            * self.silent_to_asymptomatic_probability
+        )
+        symptomatic_time = self.silent_to_symptomatic_probability * (
+            self.average_symptomatic_to_asymptomatic_days
+            * self.symptomatic_to_asymptomatic_probability
+            + self.average_symptomatic_to_hospitalized_days
+            * self.symptomatic_to_hospitalized_probability
+        )
+        silent_time = (
+            self.silent_to_symptomatic_probability
+            * self.average_silent_to_symptomatic_days
+            + self.silent_to_asymptomatic_probability
+            * self.average_silent_to_asymptomatic_days
+        )
         total_time = asymptomatic_time + symptomatic_time + silent_time
-        return (self.ASymptomatic_infection_ratio * asymptomatic_time \
-                + self.Symptomatic_infection_ratio * symptomatic_time + self.Silent_infection_ratio * silent_time) / total_time
+        return (
+            self.ASymptomatic_infection_ratio * asymptomatic_time
+            + self.Symptomatic_infection_ratio * symptomatic_time
+            + self.Silent_infection_ratio * silent_time
+        ) / total_time
 
     # simulation parameters
     population_size = 10_000
