@@ -20,6 +20,7 @@ class StatisticsPlotter:
     """
 
     def plot_infected_per_generation(self, per_generation, max_scale=True):
+        output_dir = "../output/"
         total_size = Consts.population_size
         title = f'Infections vs. Days, size={total_size}'
         text_height = per_generation["total infected"][-1] // 2
@@ -65,7 +66,7 @@ class StatisticsPlotter:
                                                                 "symptomatic", "asymptomatic", "Hospitalized", "Icu"))
 
         # showing and saving the graph
-        plt.savefig(f"{total_size} agents, applying quarantine = {Consts.active_quarantine}, max scale = {max_scale}")
+        plt.savefig(f"{output_dir}{total_size} agents, applying quarantine = {Consts.active_quarantine}, max scale = {max_scale}")
         plt.show()
         if max_scale:
             self.plot_infected_per_generation(per_generation, False)
