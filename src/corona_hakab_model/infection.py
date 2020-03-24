@@ -1,8 +1,6 @@
-import numpy as np
-
-from medical_state import MedicalState
-
 import manager
+import numpy as np
+from medical_state import MedicalState
 
 
 class InfectionManager:
@@ -10,7 +8,7 @@ class InfectionManager:
     Manages the infection stage
     """
 
-    def __init__(self, sim_manager: 'manager.SimulationManager'):
+    def __init__(self, sim_manager: "manager.SimulationManager"):
         self.agents_to_home_quarantine = []
         self.agents_to_full_quarantine = []
         self.manager = sim_manager
@@ -23,7 +21,6 @@ class InfectionManager:
 
         # update agents
         self._update_sick_agents()
-
 
     def _perform_infection(self):
         """
@@ -46,8 +43,12 @@ class InfectionManager:
 
         u = self.manager.matrix.matrix.dot(v)
         infections = np.random.random(u.shape) < (1 - np.exp(u))
-        caught_rolls = np.random.random(u.shape) < self.manager.consts.caught_sicks_ratio
-        for agent, value, caught_roll in zip(self.manager.agents, infections, caught_rolls):
+        caught_rolls = (
+            np.random.random(u.shape) < self.manager.consts.caught_sicks_ratio
+        )
+        for agent, value, caught_roll in zip(
+            self.manager.agents, infections, caught_rolls
+        ):
             if value and agent.infect(self.manager.step_counter, self.manager):
                 self.manager.sick_agents.add(agent)
                 if caught_roll:
@@ -74,7 +75,9 @@ class InfectionManager:
         rolls = np.random.random(len(self.manager.sick_agents))
         # moved the code from agent.day_passed here, so that it will be more easily managed
         for agent, roll in zip(self.manager.sick_agents, rolls):
-            result = agent.change_medical_state(self.manager.step_counter, roll, self.manager)
+            result = agent.change_medical_state(
+                self.manager.step_counter, roll, self.manager
+            )
             if result == "new_infecting":
                 self.manager.sick_agents.add(agent)
                 self.manager.sick_agent_vector[agent.ID] = True

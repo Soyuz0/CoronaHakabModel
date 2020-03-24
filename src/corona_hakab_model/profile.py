@@ -4,13 +4,14 @@ from time import time
 from warnings import warn
 
 import yappi
-
 from manager import SimulationManager
 
-qcachegrind_path = Path(r"C:\Users\avrah\Downloads\qcachegrind074-32bit-x86\qcachegrind074-x86\qcachegrind.exe")
+qcachegrind_path = Path(
+    r"C:\Users\avrah\Downloads\qcachegrind074-32bit-x86\qcachegrind074-x86\qcachegrind.exe"
+)
 profile_gen = False
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     if profile_gen:
         yappi.start()
     sm = SimulationManager()
@@ -19,8 +20,8 @@ if __name__ == '__main__':
     sm.run()
 
     stats = yappi.get_func_stats()
-    dest_path = '..\profilings\callgrind.out.' + str(int(time()))
-    stats.save(dest_path, 'CALLGRIND')
+    dest_path = "..\profilings\callgrind.out." + str(int(time()))
+    stats.save(dest_path, "CALLGRIND")
 
     if not qcachegrind_path:
         pass
