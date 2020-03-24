@@ -32,7 +32,9 @@ class SimulationManager:
 
         # the manager holds the vector, but the agents update it
         self.infectiousness_vector = np.empty(self.consts.population_size, dtype=float)
+        self.infectable_vector = np.empty(self.consts.population_size, dtype=bool)
         self.agents = [Agent(i, self, initial_state) for i in range(self.consts.population_size)]
+        initial_state.add_many(self.agents)
 
         self.matrix = AffinityMatrix(self)
 
@@ -54,24 +56,37 @@ class SimulationManager:
         self.update_matrix_manager.update_matrix_step(self.infection_manager.agents_to_home_quarantine,
                                                       self.infection_manager.agents_to_full_quarantine)
 
-        changed_state = defaultdict(list)
-        changed_state[self.medical_machine.state_upon_infection] = self.infection_manager.infection_step()
+        # run infection
+        new_sick = self.infection_manager.infection_step()
 
         # progress transfers
-        # todo move to own function?
-
-        moved = self.pending_transfers.advance()
-        for (agent_ind, destination, _) in moved:
-            agent = self.agents[agent_ind]
-            agent.set_medical_state(destination)
-            changed_state[destination].append(agent)
-
-        for state, agents in changed_state.items():
-            self.pending_transfers.extend(state.transfer(agents))
+        self.progress_transfers(new_sick)
 
         self.current_date += 1
 
         self.supervisor.snapshot(self)
+
+    def progress_transfers(self, new_sick):
+        changed_state_introduced = defaultdict(list)
+        changed_state_leaving = new_sick
+
+        changed_state_introduced[self.medical_machine.state_upon_infection] = sum(
+            changed_state_leaving.values(), []
+        )
+
+        moved = self.pending_transfers.advance()
+        for (agent, destination, origin, _) in moved:
+            agent.set_medical_state_no_inform(destination)
+            changed_state_introduced[destination].append(agent)
+            changed_state_leaving[origin].append(agent)
+
+        for state, agents in changed_state_introduced.items():
+            state.add_many(agents)
+
+            self.pending_transfers.extend(state.transfer(agents))
+
+        for state, agents in changed_state_leaving.items():
+            state.remove_many(agents)
 
     def setup_sick(self):
         """"
@@ -79,8 +94,9 @@ class SimulationManager:
         """
         # todo we only do this once so it's fine but we should really do something better
         agents_to_infect = self.agents[:self.consts.initial_infected_count]
+
         for agent in agents_to_infect:
-            agent.set_medical_state(self.medical_machine.state_upon_infection)
+            agent.set_medical_state_no_inform(self.medical_machine.state_upon_infection)
 
         self.pending_transfers.extend(
             self.medical_machine.state_upon_infection.transfer(agents_to_infect)

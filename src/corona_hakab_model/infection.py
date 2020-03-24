@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 import numpy as np
 
 import manager
@@ -33,17 +35,18 @@ class InfectionManager:
         v = np.random.random(len(self.manager.agents)) < self.manager.infectiousness_vector
 
         u = self.manager.matrix.matrix.dot(v)
-        infections = np.random.random(u.shape) < (1 - np.exp(u))
-        caught_rolls = np.random.random(u.shape) < self.manager.consts.caught_sicks_ratio
-        new_infected = []
-        for agent, value, caught_roll in zip(self.manager.agents, infections, caught_rolls):
-            if value and agent.medical_state.infectable:
-                new_infected.append(agent)
-                agent.set_medical_state(self.manager.medical_machine.state_upon_infection)
-                if caught_roll:
-                    if self.manager.consts.home_quarantine_sicks:
-                        self.agents_to_home_quarantine.append(agent)
-                    elif self.manager.consts.full_quarantine_sicks:
-                        self.agents_to_full_quarantine.append(agent)
+        infections = self.manager.infectable_vector & (np.random.random(u.shape) < (1 - np.exp(u)))
+        infected_indices = np.flatnonzero(infections)
+
+        caught_rolls = (np.random.random(len(infected_indices)) < self.manager.consts.caught_sicks_ratio)
+        new_infected = defaultdict(list)
+        for index, caught in zip(infected_indices, caught_rolls):
+            agent = self.manager.agents[index]
+            new_infected[agent.medical_state].append(agent)
+            if caught:
+                if self.manager.consts.home_quarantine_sicks:
+                    self.agents_to_home_quarantine.append(agent)
+                elif self.manager.consts.full_quarantine_sicks:
+                    self.agents_to_full_quarantine.append(agent)
 
         return new_infected

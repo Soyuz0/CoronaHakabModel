@@ -30,6 +30,11 @@ def dist(*args):
 
 
 class Consts(NamedTuple):
+    # simulation parameters
+    population_size = 10_000
+    total_steps = 400
+    initial_infected_count = 20
+
     # corona stats
     # todo replace with distribution
     # average state mechine transmitions times:
@@ -135,11 +140,6 @@ class Consts(NamedTuple):
                        + self.symptomatic_infection_ratio * symptomatic_time
                        + self.silent_infection_ratio * silent_time
                ) / total_time
-
-    # simulation parameters
-    population_size = 10_000
-    total_steps = 400
-    initial_infected_count = 20
 
     # quarantine policy
     # todo why does this exist? doesn't the policy set this? at least make this an enum

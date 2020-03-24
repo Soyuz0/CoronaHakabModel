@@ -37,7 +37,7 @@ class Supervisor:
     def snapshot(self, manager):
         self.xs.append(manager.current_date)
         for s, arr in self.state_history.items():
-            arr.append(len(s.agents))
+            arr.append(s.agent_count)
 
     def plot(self, max_scale=True, auto_show=True, save=True):
         output_dir = "../output/"

@@ -2,7 +2,7 @@ import logging
 from random import shuffle
 
 import numpy as np
-from agent import Circle
+from agent import Circle, TrackingCircle
 from scipy.sparse import lil_matrix
 
 m_type = lil_matrix
@@ -69,7 +69,7 @@ class AffinityMatrix:
         for i in range(num_of_families):
             if i % (num_of_families // 100) == 0:
                 self.logger.info(f"Creating family {i}/{num_of_families}")
-            new_family = Circle("home")
+            new_family = TrackingCircle()
             for _ in range(self.consts.average_family_size):
                 chosen_agent = self.agents[agents_without_home.pop()]
                 chosen_agent.add_home(new_family)
@@ -80,7 +80,7 @@ class AffinityMatrix:
         # adding the remaining people to a family (if size % average_family_size != 0)
         if len(agents_without_home) > 0:
             self.logger.info("adding remaining agents to families")
-            new_family = Circle("home")
+            new_family = TrackingCircle()
             for agent_index in agents_without_home:
                 chosen_agent = self.agents[agent_index]
                 chosen_agent.add_home(new_family)
@@ -119,7 +119,7 @@ class AffinityMatrix:
         for i in range(num_of_workplaces):  # todo add last work
             if i % (num_of_workplaces // 100) == 0:
                 self.logger.info(f"Creating workplace {i}/{num_of_workplaces}")
-            new_work = Circle("work")
+            new_work = TrackingCircle()
             for _ in range(self.consts.average_work_size):
                 chosen_agent_ind = agents_without_work.pop()
 
@@ -132,7 +132,7 @@ class AffinityMatrix:
         # adding the remaining people to a work (if size % average_work_size != 0)
         if len(agents_without_work) > 0:
             self.logger.info("adding remaining agents to workplaces")
-            new_work = Circle("work")
+            new_work = TrackingCircle()
             for agent_index in agents_without_work:
                 chosen_agent = self.agents[agent_index]
                 chosen_agent.add_work(new_work)
