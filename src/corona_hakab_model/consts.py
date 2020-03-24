@@ -93,7 +93,7 @@ class Consts(NamedTuple):
         ) / total_time
 
     # simulation parameters
-    population_size = 10_000
+    population_size = 100_000
     total_steps = 400
     initial_infected_count = 20
 

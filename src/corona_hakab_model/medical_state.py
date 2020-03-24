@@ -45,11 +45,11 @@ class ImmuneTerminalState(ImmuneState, TerminalState):
 Susceptible = InfectableTerminalState("Susceptible")
 Latent = ImmuneStochasticState("Latent")
 Silent = InfectiousStochasticState("Silent", infectiousness=0.1)
-Symptomatic = InfectiousStochasticState("Symptomatic", infectiousness=0.5)
+Symptomatic = InfectiousStochasticState("Symptomatic", infectiousness=0.75)
 Asymptomatic = InfectiousStochasticState("Asymptomatic", infectiousness=0.3)
 
-Hospitalized = InfectiousStochasticState("Hospitalized", infectiousness=0.5)
-ICU = InfectiousStochasticState("ICU", infectiousness=0.5)
+Hospitalized = InfectiousStochasticState("Hospitalized", infectiousness=0.75)
+ICU = InfectiousStochasticState("ICU", infectiousness=0.75)
 
 Deceased = ImmuneTerminalState("Deceased")
 Recovered = ImmuneTerminalState("Recovered")
@@ -57,8 +57,8 @@ Recovered = ImmuneTerminalState("Recovered")
 Susceptible.add_descendant(Silent)
 Latent.add_transfer(Silent, (1, 3), ...)
 
-Silent.add_transfer(Asymptomatic, (0, 3, 10), 0.2)
-Silent.add_transfer(Symptomatic, (0, 3, 10), ...)
+Silent.add_transfer(Asymptomatic, (1, 3, 10), 0.2)
+Silent.add_transfer(Symptomatic, (1, 3, 10), ...)
 
 Symptomatic.add_transfer(Asymptomatic, (7, 10, 14), 0.85)
 Symptomatic.add_transfer(Hospitalized, 1, ...)

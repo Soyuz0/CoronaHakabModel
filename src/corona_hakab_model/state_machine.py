@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections import namedtuple
-from typing import List, Dict, Set, Optional, Iterable, Collection, Union, Tuple
+from typing import List, Dict, Set, Optional, Iterable, Collection, Union, Tuple, Sequence
 
 from scipy.stats import rv_discrete, uniform, triang, randint
 import numpy as np
@@ -25,15 +25,20 @@ class PendingTransfers:
         else:
             self.inner[key] = [transfer]
 
-    def advance(self) -> Optional[List[PendingTransfer]]:
+    def extend(self, transfers):
+        for t in transfers:
+            self.append(t)
+
+    def advance(self) -> Sequence[PendingTransfer]:
         # todo improve (rotating array?)
         new_inner = {}
-        ret = None
-        for k, v in self.inner:
+        ret = ()
+        for k, v in self.inner.items():
             if k:
                 new_inner[k - 1] = v
             else:
                 ret = v
+        self.inner = new_inner
         return ret
 
 
@@ -75,6 +80,9 @@ class State(Circle, ABC):
     def transfer(self, agents: Collection[Agent]) -> Iterable[PendingTransfer]:
         pass
 
+    def __str__(self):
+        return f"<state {self.name}>"
+
 
 class StochasticState(State):
     def __init__(self, *args, **kwargs):
@@ -98,7 +106,7 @@ class StochasticState(State):
         self.probs = np.append(self.probs, p)
 
         if isinstance(duration, int):
-            duration = rv_discrete(name='const', values=([duration], [1]))
+            duration = rv_discrete(name='const', values=([duration], [1]))()
         if isinstance(duration, tuple):
             if len(duration) == 2:
                 duration = randint(*duration)
@@ -120,7 +128,7 @@ class StochasticState(State):
     def transfer(self, agents: Set[Agent]) -> Iterable[PendingTransfer]:
         transfer_indices = np.searchsorted(self.probs, np.random.random(len(agents)))
         bin_count = np.bincount(transfer_indices)
-        durations = [iter(d.rvs(c)) for c, (s, d) in zip(bin_count, self.durations)]
+        durations = [iter(d.rvs(c)) for (c, s, d) in zip(bin_count, self.destinations, self.durations)]
         return [
             PendingTransfer(agent.index, self.destinations[transfer_ind], durations[transfer_ind].__next__())
             for transfer_ind, agent in zip(transfer_indices, agents)

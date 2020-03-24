@@ -2,8 +2,7 @@ import logging
 from random import shuffle
 
 import numpy as np
-from agent import Agent, Circle
-from consts import Consts
+from agent import Circle
 from scipy.sparse import lil_matrix
 
 m_type = lil_matrix
@@ -19,14 +18,16 @@ class AffinityMatrix:
     Naturally, W is symetric.
     """
 
-    def __init__(self, size, consts: Consts):
-        self.consts = consts
-        self.size = size  # population size
+    def __init__(self, manager):
+        self.consts = manager.consts
+        self.size = len(manager.agents)  # population size
 
-        self.matrix = m_type((size, size), dtype=np.float32)
+        self.manager = manager
+
+        self.matrix = m_type((self.size, self.size), dtype=np.float32)
         self.logger = logging.getLogger("simulation")
         self.logger.info("Building new AffinityMatrix")
-        self.agents = self.generate_agents()
+        self.agents = self.manager.agents
 
         self.m_families = self._create_intra_family_connections()
         self.m_work = self._create_intra_workplace_connections()
@@ -38,15 +39,9 @@ class AffinityMatrix:
         self.m_random = self.m_random.tocsr()
 
         self.matrix = self.m_families + self.m_work + self.m_random
-        # self.matrix = self.m_random.tocsr()
 
         self.factor = None
         self.normalize()
-
-    def generate_agents(self):
-        self.logger.info(f"Generating {self.size} agents")
-        agents = [Agent(id_) for id_ in range(self.size)]
-        return agents
 
     def _create_intra_family_connections(self):
         """

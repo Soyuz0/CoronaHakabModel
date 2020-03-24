@@ -1,7 +1,5 @@
 import numpy as np
 
-from medical_state import MedicalState
-
 import manager
 
 
@@ -19,7 +17,7 @@ class InfectionManager:
         # perform infection
         self.agents_to_home_quarantine.clear()
         self.agents_to_full_quarantine.clear()
-        self._perform_infection()
+        return self._perform_infection()
 
     def _perform_infection(self):
         """
@@ -32,22 +30,20 @@ class InfectionManager:
                 agents[i].infect
         """
 
-        v = np.copy(self.manager.sick_agent_vector)
-
-        # a patch just for the mvp, in order to simulate infection ratio
-        rolls = np.random.random(len(self.manager.sick_agents))
-        for index, agent in enumerate(self.manager.sick_agents):
-            if rolls[index] > agent.get_infection_ratio(self.manager.consts):
-                v[agent.index] = False
+        v = np.random.random(len(self.manager.agents)) < self.manager.infectiousness_vector
 
         u = self.manager.matrix.matrix.dot(v)
         infections = np.random.random(u.shape) < (1 - np.exp(u))
         caught_rolls = np.random.random(u.shape) < self.manager.consts.caught_sicks_ratio
+        new_infected = []
         for agent, value, caught_roll in zip(self.manager.agents, infections, caught_rolls):
-            if value and agent.infect(self.manager.steps):
-                self.manager.sick_agents.add(agent)
+            if value and agent.medical_state.infectable:
+                new_infected.append(agent)
+                agent.set_medical_state(self.manager.sick_state)
                 if caught_roll:
                     if self.manager.consts.home_quarantine_sicks:
                         self.agents_to_home_quarantine.append(agent)
                     elif self.manager.consts.full_quarantine_sicks:
                         self.agents_to_full_quarantine.append(agent)
+
+        return new_infected
