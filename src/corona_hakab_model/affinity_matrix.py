@@ -2,8 +2,7 @@ import logging
 from random import shuffle
 
 import numpy as np
-from agent import Agent, Circle
-from consts import Consts
+from agent import Circle, TrackingCircle
 from scipy.sparse import lil_matrix
 
 m_type = lil_matrix
@@ -19,14 +18,16 @@ class AffinityMatrix:
     Naturally, W is symetric.
     """
 
-    def __init__(self, size, consts: Consts):
-        self.consts = consts
-        self.size = size  # population size
+    def __init__(self, manager):
+        self.consts = manager.consts
+        self.size = len(manager.agents)  # population size
 
-        self.matrix = m_type((size, size), dtype=np.float32)
+        self.manager = manager
+
+        self.matrix = m_type((self.size, self.size), dtype=np.float32)
         self.logger = logging.getLogger("simulation")
         self.logger.info("Building new AffinityMatrix")
-        self.agents = self.generate_agents()
+        self.agents = self.manager.agents
 
         self.m_families = self._create_intra_family_connections()
         self.m_work = self._create_intra_workplace_connections()
@@ -38,15 +39,9 @@ class AffinityMatrix:
         self.m_random = self.m_random.tocsr()
 
         self.matrix = self.m_families + self.m_work + self.m_random
-        # self.matrix = self.m_random.tocsr()
 
         self.factor = None
         self.normalize()
-
-    def generate_agents(self):
-        self.logger.info(f"Generating {self.size} agents")
-        agents = [Agent(id_) for id_ in range(self.size)]
-        return agents
 
     def _create_intra_family_connections(self):
         """
@@ -74,7 +69,7 @@ class AffinityMatrix:
         for i in range(num_of_families):
             if i % (num_of_families // 100) == 0:
                 self.logger.info(f"Creating family {i}/{num_of_families}")
-            new_family = Circle("home")
+            new_family = TrackingCircle()
             for _ in range(self.consts.average_family_size):
                 chosen_agent = self.agents[agents_without_home.pop()]
                 chosen_agent.add_home(new_family)
@@ -85,14 +80,14 @@ class AffinityMatrix:
         # adding the remaining people to a family (if size % average_family_size != 0)
         if len(agents_without_home) > 0:
             self.logger.info("adding remaining agents to families")
-            new_family = Circle("home")
+            new_family = TrackingCircle()
             for agent_index in agents_without_home:
                 chosen_agent = self.agents[agent_index]
                 chosen_agent.add_home(new_family)
                 new_family.add_agent(chosen_agent)
             families.append(new_family)
         for home in families:
-            ids = np.array([a.ID for a in home.agents])
+            ids = np.array([a.index for a in home.agents])
             xs, ys = np.meshgrid(ids, ids)
             xs = xs.reshape(-1)
             ys = ys.reshape(-1)
@@ -124,7 +119,7 @@ class AffinityMatrix:
         for i in range(num_of_workplaces):  # todo add last work
             if i % (num_of_workplaces // 100) == 0:
                 self.logger.info(f"Creating workplace {i}/{num_of_workplaces}")
-            new_work = Circle("work")
+            new_work = TrackingCircle()
             for _ in range(self.consts.average_work_size):
                 chosen_agent_ind = agents_without_work.pop()
 
@@ -137,7 +132,7 @@ class AffinityMatrix:
         # adding the remaining people to a work (if size % average_work_size != 0)
         if len(agents_without_work) > 0:
             self.logger.info("adding remaining agents to workplaces")
-            new_work = Circle("work")
+            new_work = TrackingCircle()
             for agent_index in agents_without_work:
                 chosen_agent = self.agents[agent_index]
                 chosen_agent.add_work(new_work)
@@ -146,7 +141,7 @@ class AffinityMatrix:
 
         # updating the matrix using the works
         for work in works:
-            ids = np.array([a.ID for a in work.agents])
+            ids = np.array([a.index for a in work.agents])
             xs, ys = np.meshgrid(ids, ids)
             xs = xs.reshape(-1)
             ys = ys.reshape(-1)
@@ -209,29 +204,3 @@ class AffinityMatrix:
     def change_work_policy(self, state):
         self.matrix = self.m_families + state * self.m_work + self.m_random
         self.normalize()
-
-
-# todo delete
-def dot(self, v):
-    """
-    performs dot operation between this matrix and v
-    :param v: with the size of self.size
-
-    :return: matrix*v
-    """
-
-    return self.matrix.dot(v)
-
-
-def zero_column(col_id):
-    """
-    Turn the chosen column to zeroes.
-    """
-    pass
-
-
-def add_to_column(col_id, col):
-    """
-    Add the given column to the chosen column
-    """
-    pass
