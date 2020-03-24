@@ -32,7 +32,7 @@ class UpdateMatrixManager:
             return
         families = self.affinity_matrix.m_families
         # changing your col (now you won't infect any one outside of your home)
-        indices = np.full(self.affinity_matrix.size, agent.ID, dtype=int), np.arange(self.affinity_matrix.size)
+        indices = np.full(self.affinity_matrix.size, agent.index, dtype=int), np.arange(self.affinity_matrix.size)
         temp = (1 - (families[indices] * self.affinity_matrix.factor))
         self.affinity_matrix.matrix[indices] = np.log(temp)
 
@@ -51,7 +51,7 @@ class UpdateMatrixManager:
         if agent.is_full_quarantined:
             return
         # changing your col (now you won't infect any one)
-        indices = np.full(self.affinity_matrix.size, agent.ID, dtype=int), np.arange(self.affinity_matrix.size)
+        indices = np.full(self.affinity_matrix.size, agent.index, dtype=int), np.arange(self.affinity_matrix.size)
         self.affinity_matrix.matrix[indices] = 0
 
         # changing your row (now you won't be infected by people)
@@ -71,7 +71,7 @@ class UpdateMatrixManager:
         families = self.affinity_matrix.m_families
         works = self.affinity_matrix.m_work
         random = self.affinity_matrix.m_random
-        indices = np.full(self.affinity_matrix.size, agent.ID, dtype=int), np.arange(self.affinity_matrix.size)
+        indices = np.full(self.affinity_matrix.size, agent.index, dtype=int), np.arange(self.affinity_matrix.size)
         temp = (1 - ((families[indices] + works[indices] + random[indices]) * self.affinity_matrix.factor))
         self.affinity_matrix.matrix[indices] = np.log(temp)
 

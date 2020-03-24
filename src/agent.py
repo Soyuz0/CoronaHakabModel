@@ -1,54 +1,34 @@
 from consts import Consts
-from medical_state import MedicalState, INFECTABLE_MEDICAL_STATES, INFECTIONS_MEDICAL_STATES
 
 
 class Agent:
     """
     This class represents a person in our doomed world.
     """
-    __slots__ = "ssn", "ID", "home", "work", "medical_state", "infection_date", "is_home_quarantined", "is_full_quarantined"
+    __slots__ = "index", "home", "work", "medical_state", "infection_date", "is_home_quarantined", "is_full_quarantined"
 
-    def __init__(self, ssn):
-        self.ssn = ssn
-        self.ID = ssn
+    def __init__(self, index):
+        self.index = index
         self.home = None
         self.work = None
         self.infection_date = None
-        self.medical_state = MedicalState.Healthy
+
+        self.medical_state = None
+
         self.is_home_quarantined = False
         self.is_full_quarantined = False
 
+    def set_medical_state(self, new_state):
+        if self.medical_state:
+            self.medical_state.remove_agent(self)
+        new_state.add_agent(self)
+        self.medical_state = new_state
+
     def __str__(self):
-        return "<Person,  ssn={}, medical={}>".format(self.ssn, self.medical_state)
+        return "<Person,  index={}, medical={}>".format(self.index, self.medical_state)
 
-    def is_infectious(self):
-        """
-        Check if this agent is infectious.
-
-        :return: bool, True if this agent can infect others.
-        """
-
-        # pay attantion, doesn't have to be only in this stage. in the future this could be multiple stages check
-        return self.medical_state in INFECTIONS_MEDICAL_STATES
-
-    def is_infectable(self):
-        return self.medical_state in INFECTABLE_MEDICAL_STATES
-
-    def infect(self, date=0):
-        """
-        Will try to infect this agent with given probability
-        """
-        if self.is_infectable():
-            self.change_medical_state(MedicalState.Silent)
-            self.infection_date = date
-            return True
-
-    def get_infection_ratio(self, consts: Consts):
-        if self.medical_state == MedicalState.Symptomatic:
-            return consts.Symptomatic_infection_ratio
-        elif self.medical_state == MedicalState.Asymptomatic:
-            return consts.ASymptomatic_infection_ratio
-        return 0
+    def get_infection_ratio(self):
+        return self.medical_state.infectousness
 
     def add_home(self, home):
         self.home = home
@@ -59,21 +39,21 @@ class Agent:
     def change_medical_state(self, new_status):
         self.medical_state = new_status
 
-    def __cmp__(self, other):
-        return self.ID == other.ID
-
 
 class Circle:
-    __slots__ = "type", "agents"
+    __slots__ = "kind", "agents"
 
-    def __init__(self, type):
-        self.type = type
-        self.agents = []
+    def __init__(self, kind: str):
+        self.kind = kind
+        self.agents = set()
 
     def add_agent(self, agent):
-        self.agents.append(agent)
+        self.agents.add(agent)
+
+    def remove_agent(self, agent):
+        self.agents.remove(agent)
 
     def get_indexes_of_my_circle(self, my_index):
-        rest_of_circle = {o.ID for o in self.agents}
+        rest_of_circle = {o.index for o in self.agents}
         rest_of_circle.remove(my_index)
         return rest_of_circle

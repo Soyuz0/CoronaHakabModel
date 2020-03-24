@@ -93,7 +93,7 @@ class AffinityMatrix:
                 new_family.add_agent(chosen_agent)
             families.append(new_family)
         for home in families:
-            ids = np.array([a.ID for a in home.agents])
+            ids = np.array([a.index for a in home.agents])
             xs, ys = np.meshgrid(ids, ids)
             xs = xs.reshape(-1)
             ys = ys.reshape(-1)
@@ -147,7 +147,7 @@ class AffinityMatrix:
 
         # updating the matrix using the works
         for work in works:
-            ids = np.array([a.ID for a in work.agents])
+            ids = np.array([a.index for a in work.agents])
             xs, ys = np.meshgrid(ids, ids)
             xs = xs.reshape(-1)
             ys = ys.reshape(-1)
