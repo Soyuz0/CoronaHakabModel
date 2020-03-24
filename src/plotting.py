@@ -59,7 +59,10 @@ class StatisticsPlotter:
         p4 = plt.plot(per_generation["total current sick"])
         p5 = plt.plot(per_generation[MedicalState.Symptomatic])
         p6 = plt.plot(per_generation[MedicalState.Asymptomatic])
-        plt.legend((p1[0], p2[0], p3[0], p4[0], p5[0], p6[0]), ("infected", "recovered", "dead", "currently sick", "symptomatic", "asymptomatic"))
+        p7 = plt.plot(per_generation[MedicalState.Hospitalized])
+        p8 = plt.plot(per_generation[MedicalState.Icu])
+        plt.legend((p1[0], p2[0], p3[0], p4[0], p5[0], p6[0], p7[0], p8[0]), ("infected", "recovered", "dead", "currently sick",
+                                                                "symptomatic", "asymptomatic", "Hospitalized", "Icu"))
 
         # showing and saving the graph
         plt.savefig(f"{total_size} agents, applying quarantine = {Consts.active_quarantine}, max scale = {max_scale}")

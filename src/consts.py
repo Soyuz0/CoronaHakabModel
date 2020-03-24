@@ -65,7 +65,7 @@ class Consts(NamedTuple):
                 + self.Symptomatic_infection_ratio * symptomatic_time + self.Silent_infection_ratio * silent_time) / total_time
 
     # simulation parameters
-    population_size = 100_000
+    population_size = 10_000
     total_steps = 400
     initial_infected_count = 20
 
