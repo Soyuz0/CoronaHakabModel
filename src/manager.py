@@ -7,6 +7,7 @@ import plotting
 import update_matrix
 import random as rnd
 import infection
+from medical_state import MedicalState
 from consts import Consts
 
 
@@ -32,12 +33,14 @@ class SimulationManager:
         self.infection_manager = infection.InfectionManager(self)
 
         self.step_counter = 0
-        self.infected_per_generation = [0] * self.consts.total_steps
-        self.recovered_per_generation = [0] * self.consts.total_steps
-        self.dead_per_generation = [0] * self.consts.total_steps
-        self.sick_per_generation = [0] * self.consts.total_steps
-        self.recovered_counter = 0
-        self.dead_counter = 0
+
+        self.per_generation = {}
+        self.counters = {}
+        for state in MedicalState:
+            self.per_generation[state] = [0] * self.consts.total_steps
+            self.counters[state] = 0
+        self.per_generation["total infected"] = [0] * self.consts.total_steps
+        self.per_generation["total current sick"] = [0] * self.consts.total_steps
 
         self.logger.info("Created new simulation.")
 
@@ -52,31 +55,26 @@ class SimulationManager:
         # update matrix
         self.update_matrix_manager.update_matrix_step(self.infection_manager.agents_to_home_quarantine,
                                                       self.infection_manager.agents_to_full_quarantine)
-
         # update infection
-        new_dead, new_recovered = \
-            self.infection_manager.infection_step()
-
+        self.infection_manager.infection_step()
         # update stats
-        self.dead_counter += new_dead
-        self.recovered_counter += new_recovered
         self.update_stats()
 
         self.step_counter += 1
 
     def update_stats(self):
-        self.recovered_per_generation[self.step_counter] = self.recovered_counter
-        self.dead_per_generation[self.step_counter] = self.dead_counter
-        self.sick_per_generation[self.step_counter] = len(self.sick_agents)
-        self.infected_per_generation[self.step_counter] = len(
-            self.sick_agents) + self.recovered_counter + self.dead_counter
+        for state in MedicalState:
+            self.per_generation[state][self.step_counter] = self.counters[state]
+        self.per_generation["total current sick"][self.step_counter] = sum(self.counters.values()) - self.counters[
+            MedicalState.Deceased] - self.counters[MedicalState.Immune]
+        self.per_generation["total infected"][self.step_counter] = sum(self.counters.values())
 
     def setup_sick(self):
         """"
         setting up the simulation with a given amount of infected people
         """
         for agent in islice(self.agents, self.consts.initial_infected_count):
-            agent.infect(0)
+            agent.infect(0, self)
             self.sick_agents.add(agent)
 
     def generate_policy(self, workers_percent):
@@ -93,7 +91,7 @@ class SimulationManager:
                 family_members_ids = agent.home.get_indexes_of_my_circle(agent.ID)  # right now families are circle[0]
                 for id in family_members_ids:
                     self.matrix.matrix[agent.ID, id] = \
-                        np.log(1 - (self.consts.family_strength_not_workers*self.matrix.factor))
+                        np.log(1 - (self.consts.family_strength_not_workers * self.matrix.factor))
         self.setup_sick()
 
     def run(self):
@@ -110,16 +108,14 @@ class SimulationManager:
                     self.matrix.change_work_policy(True)
             self.step()
             self.logger.info(
-                f"performing step {i + 1}/{self.consts.total_steps} : "
-                f"{self.sick_per_generation[i]} people are sick, "
-                f"{self.recovered_per_generation[i]} people are recovered, "
-                f"{self.dead_per_generation[i]} people are dead, "
-                f"total amount of {self.infected_per_generation[i]} people were infected"
+                "performing step {}/{} :{} people are sick, {} people are recovered, {} people are dead, total amount of {} people were infected".format(
+                    i + 1, self.consts.total_steps, self.per_generation["total current sick"][i],
+                    self.per_generation[MedicalState.Immune][i], self.per_generation[MedicalState.Deceased][i],
+                    self.per_generation["total infected"][i])
             )
 
     def plot(self):
-        self.stats_plotter.plot_infected_per_generation(self.infected_per_generation, self.recovered_per_generation,
-                                                           self.dead_per_generation, self.sick_per_generation)
+        self.stats_plotter.plot_infected_per_generation(self.per_generation)
 
     def __str__(self):
         return "<SimulationManager: SIZE_OF_POPULATION={}, STEPS_TO_RUN={}>".format(self.consts.population_size,

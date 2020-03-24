@@ -11,6 +11,7 @@ from matplotlib import pyplot as plt
 import numpy as np
 from sklearn.linear_model import LinearRegression
 from consts import Consts
+from medical_state import MedicalState
 
 
 class StatisticsPlotter:
@@ -18,11 +19,10 @@ class StatisticsPlotter:
     Plots statistics about the simulation.
     """
 
-    def plot_infected_per_generation(self, infected_per_generation_vector, recovered_per_generation,
-                                     dead_per_generation, sick_per_generation, max_scale=True):
+    def plot_infected_per_generation(self, per_generation, max_scale=True):
         total_size = Consts.population_size
         title = f'Infections vs. Days, size={total_size}'
-        text_height = infected_per_generation_vector[-1] / 2
+        text_height = per_generation["total infected"][-1] // 2
         if max_scale:
             text_height = total_size / 2
 
@@ -36,6 +36,10 @@ class StatisticsPlotter:
             plt.axvline(x=Consts.resume_work_days, color='#0000cc')
             plt.text(Consts.resume_work_days + 2, text_height, f'day {Consts.resume_work_days} - resume all work',
                      rotation=90)
+        if Consts.home_quarantine_sicks:
+            title = title + "\napplying home quarantine for confirmed cases ({} of cases)".format(Consts.caught_sicks_ratio)
+        if Consts.full_quarantine_sicks:
+            title = title + "\napplying full quarantine for confirmed cases ({} of cases)".format(Consts.caught_sicks_ratio)
 
         # plot parameters
         plt.title(title)
@@ -49,18 +53,19 @@ class StatisticsPlotter:
         plt.grid()
 
         # data
-        p1 = plt.plot(infected_per_generation_vector)
-        p2 = plt.plot(recovered_per_generation)
-        p3 = plt.plot(dead_per_generation)
-        p4 = plt.plot(sick_per_generation)
-        plt.legend((p1[0], p2[0], p3[0], p4[0]), ("infected", "recovered", "dead", "currently sick"))
+        p1 = plt.plot(per_generation["total infected"])
+        p2 = plt.plot(per_generation[MedicalState.Immune])
+        p3 = plt.plot(per_generation[MedicalState.Deceased])
+        p4 = plt.plot(per_generation["total current sick"])
+        p5 = plt.plot(per_generation[MedicalState.Symptomatic])
+        p6 = plt.plot(per_generation[MedicalState.Asymptomatic])
+        plt.legend((p1[0], p2[0], p3[0], p4[0], p5[0], p6[0]), ("infected", "recovered", "dead", "currently sick", "symptomatic", "asymptomatic"))
 
         # showing and saving the graph
         plt.savefig(f"{total_size} agents, applying quarantine = {Consts.active_quarantine}, max scale = {max_scale}")
         plt.show()
         if max_scale:
-            self.plot_infected_per_generation(infected_per_generation_vector, recovered_per_generation,
-                                              dead_per_generation, sick_per_generation, False)
+            self.plot_infected_per_generation(per_generation, False)
 
     def plot_log_with_linear_regression(self, infected_per_generation_vector, recovered_per_generation,
                                         dead_per_generation):
