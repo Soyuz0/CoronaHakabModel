@@ -1,19 +1,8 @@
-from typing import Iterable, Dict, List
+from typing import Dict, Iterable, List
 
+import matplotlib_set_backend  # noqa: F401
 from consts import Consts
 from medical_state import MedicalState
-
-try:
-    import PySide2
-except ImportError:
-    pass
-else:
-    try:
-        import matplotlib
-    except ImportError:
-        pass
-    else:
-        matplotlib.use("Qt5Agg")
 
 try:
     # plt is optional
@@ -26,13 +15,16 @@ class Supervisor:
     """
     records and plots statistics about the simulation.
     """
+
     # todo I want the supervisor to decide when the simulation ends
     # todo record write/read results as text
 
     def __init__(self, states_to_track: Iterable[MedicalState]):
-        self.state_history: Dict[MedicalState, List[int]] = {s: [] for s in states_to_track}
+        self.state_history: Dict[MedicalState, List[int]] = {
+            s: [] for s in states_to_track
+        }
         self.xs = []
-        self.max_height = -float('inf')
+        self.max_height = -float("inf")
 
     def snapshot(self, manager):
         self.xs.append(manager.current_date)
@@ -70,17 +62,17 @@ class Supervisor:
             )
         if Consts.home_quarantine_sicks:
             title = (
-                    title
-                    + "\napplying home quarantine for confirmed cases ({} of cases)".format(
-                Consts.caught_sicks_ratio
-            )
+                title
+                + "\napplying home quarantine for confirmed cases ({} of cases)".format(
+                    Consts.caught_sicks_ratio
+                )
             )
         if Consts.full_quarantine_sicks:
             title = (
-                    title
-                    + "\napplying full quarantine for confirmed cases ({} of cases)".format(
-                Consts.caught_sicks_ratio
-            )
+                title
+                + "\napplying full quarantine for confirmed cases ({} of cases)".format(
+                    Consts.caught_sicks_ratio
+                )
             )
 
         # plot parameters

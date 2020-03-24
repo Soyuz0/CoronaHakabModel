@@ -4,6 +4,9 @@ try:
 except ImportError:
     pass
 else:
-    import matplotlib
-
-    matplotlib.use("Qt5Agg")
+    try:
+        import matplotlib
+    except ImportError:
+        pass
+    else:
+        matplotlib.use("Qt5Agg")

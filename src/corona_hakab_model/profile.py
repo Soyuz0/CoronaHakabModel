@@ -15,14 +15,23 @@ if __name__ == "__main__":
     if profile_gen:
         yappi.start()
     sm = SimulationManager(
-        ("Recovered", "Deceased", "Symptomatic", "Asymptomatic", "Hospitalized", "ICU", "Latent", "Silent")
+        (
+            "Recovered",
+            "Deceased",
+            "Symptomatic",
+            "Asymptomatic",
+            "Hospitalized",
+            "ICU",
+            "Latent",
+            "Silent",
+        )
     )
     if not profile_gen:
         yappi.start()
     sm.run()
 
     stats = yappi.get_func_stats()
-    dest_path = "..\..\profilings\callgrind.out." + str(int(time()))
+    dest_path = r"..\..\profilings\callgrind.out." + str(int(time()))
     stats.save(dest_path, "CALLGRIND")
 
     if not qcachegrind_path:
