@@ -136,6 +136,8 @@ class SimulationManager:
             self.logger.info(
                 f"performing step {i + 1}/{self.consts.total_steps}"
             )
+        runtime = time() - start_time
+        print(f"--- {runtime} seconds ---")
 
     def plot(self, **kwargs):
         self.supervisor.plot(**kwargs)
