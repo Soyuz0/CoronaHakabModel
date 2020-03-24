@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections import namedtuple
-from typing import List, Dict, Set, Optional, Iterable, Collection, Union, Tuple, Sequence
+from typing import List, Dict, Set, Optional, Iterable, Collection, Union, Tuple, Sequence, Generic, TypeVar
 
 from scipy.stats import rv_discrete, uniform, triang, randint
 import numpy as np
@@ -45,36 +45,17 @@ class PendingTransfers:
 class State(Circle, ABC):
     all_states: List[State] = []
 
-    # todo function to draw a pretty graph
-
     def __init__(self, name):
         super().__init__("state")
         self.name = name
 
-        self.ancestor: Optional[State] = None
-        self.descendant_states: Optional[Dict[str, State]] = {name: self}
+        self.machine: Optional[StateMachine] = None
 
         self.ind = len(self.all_states)
         self.all_states.append(self)
 
     def _add_descendant(self, child: State):
-        if self.ancestor:
-            self.ancestor._add_descendant(child)
-        else:
-            self.add_descendant(child)
-
-    def add_descendant(self, child: State):
-        if not self.descendant_states:
-            raise Exception("cannot indirectly insert a child to a non-root state")
-        if self.descendant_states.setdefault(child.name, child) is not child:
-            raise Exception(f"duplicate state name {child.name}")
-        child.ancestor = self
-        child.descendant_states = None
-
-    def __getitem__(self, item: str) -> State:
-        if not self.descendant_states:
-            raise Exception("cannot index a non-root state")
-        return self.descendant_states[item]
+        self.machine.add_state(child)
 
     @abstractmethod
     def transfer(self, agents: Collection[Agent]) -> Iterable[PendingTransfer]:
@@ -138,3 +119,24 @@ class StochasticState(State):
 class TerminalState(State):
     def transfer(self, agents: Set[Agent]) -> Iterable[PendingTransfer]:
         return ()
+
+
+T = TypeVar('T', bound=State)
+
+
+class StateMachine(Generic[T]):
+    def __init__(self, initial_state: T):
+        self.initial: T = initial_state
+        self.states = {initial_state.name: initial_state}
+
+    def __getitem__(self, item: Union[str, Tuple[str, ...]]):
+        if isinstance(item, str):
+            return self.states[item]
+        return (self[i] for i in item)
+
+    def add_state(self, state: T):
+        if self.states.setdefault(state.name, state) is not state:
+            raise Exception(f"duplicate state name {state.name}")
+        state.machine = self
+
+    # todo function to draw a pretty graph

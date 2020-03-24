@@ -39,7 +39,7 @@ class InfectionManager:
         for agent, value, caught_roll in zip(self.manager.agents, infections, caught_rolls):
             if value and agent.medical_state.infectable:
                 new_infected.append(agent)
-                agent.set_medical_state(self.manager.sick_state)
+                agent.set_medical_state(self.manager.medical_machine.state_upon_infection)
                 if caught_roll:
                     if self.manager.consts.home_quarantine_sicks:
                         self.agents_to_home_quarantine.append(agent)

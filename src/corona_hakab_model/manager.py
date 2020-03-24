@@ -1,4 +1,6 @@
 from collections import defaultdict
+from typing import Tuple
+
 from affinity_matrix import AffinityMatrix
 import logging
 import numpy as np
@@ -7,10 +9,7 @@ import update_matrix
 import infection
 from agent import Agent
 from consts import Consts
-from medical_state import MedicalState, Silent
 from state_machine import PendingTransfers
-
-from medical_state import Recovered, Deceased, Symptomatic, Asymptomatic, Hospitalized, ICU, Latent
 
 
 class SimulationManager:
@@ -18,8 +17,10 @@ class SimulationManager:
     A simulation manager is the main class, it manages the steps performed with policies
     """
 
-    def __init__(self, initial_medical_state: MedicalState, sick_state: MedicalState, consts=Consts()):
+    def __init__(self, states_to_track: Tuple[str, ...], consts=Consts()):
         self.consts = consts
+        self.medical_machine = consts.medical_state_machine()
+        initial_state = self.medical_machine.initial
 
         self.pending_transfers = PendingTransfers()
 
@@ -31,14 +32,12 @@ class SimulationManager:
 
         # the manager holds the vector, but the agents update it
         self.infectiousness_vector = np.empty(self.consts.population_size, dtype=float)
-        self.agents = [Agent(i, self, initial_medical_state) for i in range(self.consts.population_size)]
+        self.agents = [Agent(i, self, initial_state) for i in range(self.consts.population_size)]
 
         self.matrix = AffinityMatrix(self)
 
-        self.sick_state = sick_state
-
         self.supervisor = plotting.Supervisor(
-            [Recovered, Deceased, Symptomatic, Asymptomatic, Hospitalized, ICU, Latent, Silent]
+            self.medical_machine[states_to_track]
         )
         self.update_matrix_manager = update_matrix.UpdateMatrixManager(self.matrix)
         self.infection_manager = infection.InfectionManager(self)
@@ -56,7 +55,7 @@ class SimulationManager:
                                                       self.infection_manager.agents_to_full_quarantine)
 
         changed_state = defaultdict(list)
-        changed_state[self.sick_state] = self.infection_manager.infection_step()
+        changed_state[self.medical_machine.state_upon_infection] = self.infection_manager.infection_step()
 
         # progress transfers
         # todo move to own function
@@ -81,10 +80,10 @@ class SimulationManager:
         # todo we only do this once so it's fine but we should really do something better
         agents_to_infect = self.agents[:self.consts.initial_infected_count]
         for agent in agents_to_infect:
-            agent.set_medical_state(self.sick_state)
+            agent.set_medical_state(self.medical_machine.state_upon_infection)
 
         self.pending_transfers.extend(
-            self.sick_state.transfer(agents_to_infect)
+            self.medical_machine.state_upon_infection.transfer(agents_to_infect)
         )
 
     def generate_policy(self, workers_percent):

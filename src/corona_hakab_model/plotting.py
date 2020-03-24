@@ -1,9 +1,7 @@
 from typing import Iterable, Dict, List
 
-import numpy as np
 from consts import Consts
 from medical_state import MedicalState
-from sklearn.linear_model import LinearRegression
 
 try:
     import PySide2
